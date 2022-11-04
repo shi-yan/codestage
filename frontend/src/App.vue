@@ -1,6 +1,17 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: column">
+    <div ref="menu" class="menu">
+      <h2>Title</h2>
+      <div>
+        <ul>
+          <li>
+            sdf
+          </li>
+          </ul>
+      </div>
+    </div>
     <div style="flex-grow: 0; flex-shrink: 1">
+      <button style="z-index:200" @mouseover="buttonhover">test</button>
       <button @click="onFile1">file one</button>
       <button @click="onFile2">file two</button>
     </div>
@@ -22,8 +33,13 @@ let editor = null;
 export default {
   name: "App",
   components: {},
-  data: function () {},
+  data: function () { },
   mounted: async function () {
+
+    let manifest = await fetch("manifest.json");
+    let jsonContent = await manifest.json();
+    console.log("content", jsonContent);
+
     this.getChapters();
     /*
         var jsCode = [
@@ -75,8 +91,8 @@ export default {
       let movableOnMouseUp = function (event) {
         event.stopPropagation();
         event.preventDefault();
-        //        document.removeEventListener("mousemove", movableOnMouseMove);
-        //        document.removeEventListener("mouseup", movableOnMouseUp);
+        document.removeEventListener("mousemove", movableOnMouseMove);
+        document.removeEventListener("mouseup", movableOnMouseUp);
         self.updateIFrameSize();
         self.$refs["outputWindow"].style.pointerEvents = "auto";
       };
@@ -94,7 +110,7 @@ export default {
 
       movable.onmousedown = function (e) {
         mouseX = e.screenX;
-        isDragging = true;
+        //isDragging = true;
         document.addEventListener("mousemove", movableOnMouseMove);
         document.addEventListener("mouseup", movableOnMouseUp);
         // cancel iframe mouse event https://www.gyrocode.com/articles/how-to-detect-mousemove-event-over-iframe-element/
@@ -140,6 +156,11 @@ export default {
         return chapter;
       }
       return "default";
+    },
+    buttonhover: function () {
+      console.log("button hover");
+      this.$refs["menu"].classList.add("slide");
+
     },
     onFile1: function () {
       console.log(this.editor);
@@ -214,5 +235,20 @@ html {
   overflow: hidden;
 
   width: 50%;
+}
+
+.menu {
+  width: 320px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -320px;
+  background-color: white;
+  z-index: 100;
+}
+
+.slide {
+  left: 0px;
+  transition: 0.3s;
 }
 </style>

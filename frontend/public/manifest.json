@@ -1,13 +1,50 @@
 {
-    "title": "",
-    "examples": [
+  "github": "xxx",
+  "title": "WebGPU tutorial",
+  "content": [
+    {
+      "folder": "test_folder_1",
+      "title": "chapter 1",
+      "files": [
         {
-            "title": "01 Draw a Single Triangle",
-            "folder" : "01_triangle",
-            "files" : [
-                "script.js",
-                "index.html"
-            ]
+          "filename": "index.html",
+          "is_readonly": true
         }
-    ]
+      ],
+      "sub_chapters": [
+        {
+          "folder": "test_folder2",
+          "title": "chapter 1.1",
+          "files": [
+            {
+              "filename": "index.html",
+              "is_readonly": true
+            }
+          ],
+          "sub_chapters": [
+            {
+              "folder": "test_folder2",
+              "title": "chapter 1.1.1",
+              "files": [
+                {
+                  "filename": "index.html",
+                  "is_readonly": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "folder": "test_folder2",
+      "title": "chapter 2",
+      "files": [
+        {
+          "filename": "index.html",
+          "is_readonly": true
+        }
+      ]
+    }
+  ]
 }

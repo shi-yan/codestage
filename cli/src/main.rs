@@ -3,6 +3,7 @@ use std::fs;
 use std::io::{self, Read};
 use toml::map::Map;
 use toml::Value;
+use std::fs::File;
 
 fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) -> bool {
     if !content.contains_key("title") {
@@ -107,7 +108,9 @@ fn main() {
     }
 
     //println!("{:?}", value);
+    let mut file = File::create("manifest.json").unwrap();
 
-    serde_json::to_writer_pretty(io::stdout(), &value).unwrap();
+    serde_json::to_writer_pretty(file, &value).unwrap();
     //assert_eq!(value["foo"].as_str(), Some("bar"));
+    
 }
