@@ -1,0 +1,13 @@
+{
+    "title": "",
+    "examples": [
+        {
+            "title": "01 Draw a Single Triangle",
+            "folder" : "01_triangle",
+            "files" : [
+                "script.js",
+                "index.html"
+            ]
+        }
+    ]
+}

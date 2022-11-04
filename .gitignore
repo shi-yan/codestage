@@ -1,8 +1,9 @@
 .DS_Store
 node_modules
-/dist
-
-
+frontend/dist
+cli/target
+Cargo.lock
+package-lock.json
 # local env files
 .env.local
 .env.*.local
