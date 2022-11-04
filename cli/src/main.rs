@@ -18,6 +18,23 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
         return false;
     }
 
+    if !content.contains_key("files") {
+        println!("Toml Format Error: A Chapter must have a file list.");
+        return false;
+    }
+    else {
+        if let toml::Value::Array(files) = content.get("files").unwrap() {
+            for f in files {
+                if let toml::Value::Table(ref file) = f {
+                    if !file.contains_key("filename") {
+                        println!("Toml Format Error: A file must contain a filename.");
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
     if content.contains_key("sub_chapters") {
         if let toml::Value::Array(content) = content.get("sub_chapters").unwrap() {
             for c in content {
