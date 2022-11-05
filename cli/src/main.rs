@@ -14,16 +14,12 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
         println!("{:indent$}{}","", content.get("title").unwrap(), indent=indent);
     }
 
-    if !content.contains_key("folder") {
+    /*if !content.contains_key("folder") {
         println!("Toml Format Error: A Chapter must have a folder.");
         return false;
-    }
+    }*/
 
-    if !content.contains_key("files") {
-        println!("Toml Format Error: A Chapter must have a file list.");
-        return false;
-    }
-    else {
+    if content.contains_key("files") {
         if let toml::Value::Array(files) = content.get("files").unwrap() {
             for f in files {
                 if let toml::Value::Table(ref file) = f {

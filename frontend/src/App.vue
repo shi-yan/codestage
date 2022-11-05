@@ -1,17 +1,26 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: column">
     <div ref="menu" class="menu">
-      <h2>Title</h2>
       <div>
+        <button class="menu-top-bar-button" @click="onMenuClose">X</button>
+      </div>
+      <h2>Title</h2>
+      <div class="menu-content">
         <ul>
-          <li>
-            sdf
-          </li>
-          </ul>
+          <menu-item
+            v-for="item in content.content"
+            :key="item.title"
+            :item="item"
+          >
+          </menu-item>
+        </ul>
+      </div>
+      <div>
+        <button>github</button>
       </div>
     </div>
     <div style="flex-grow: 0; flex-shrink: 1">
-      <button style="z-index:200" @mouseover="buttonhover">test</button>
+      <button style="z-index: 200" @mouseover="buttonhover">test</button>
       <button @click="onFile1">file one</button>
       <button @click="onFile2">file two</button>
     </div>
@@ -27,18 +36,36 @@
 
 <script>
 import * as monaco from "monaco-editor";
-
+import { ref } from "vue";
+import MenuItem from "./MenuItem.vue";
 let editor = null;
 
 export default {
   name: "App",
-  components: {},
-  data: function () { },
+  components: {
+    MenuItem,
+  },
+  data: function () {
+    return { content: ref({}) };
+  },
+  beforeUnmount: function () {
+    this.eventBus.off("load");
+  },
   mounted: async function () {
+    this.content = await this.fetchContent();
+    document.title = this.content.title;
 
-    let manifest = await fetch("manifest.json");
-    let jsonContent = await manifest.json();
-    console.log("content", jsonContent);
+    const queryString = window.location.search;
+
+    const urlParams = new URLSearchParams(queryString);
+
+    const folder = urlParams.get('sample');
+
+    console.log("folder", folder);
+
+    this.eventBus.on("load", (e) => {
+      this.onLoadSample(e);
+    });
 
     this.getChapters();
     /*
@@ -149,6 +176,16 @@ export default {
     });
   },
   methods: {
+    fetchContent: async function () {
+      let manifest = await fetch("manifest.json");
+      let jsonContent = await manifest.json();
+      return jsonContent;
+    },
+    onLoadSample: function (e) {
+      console.log(e);
+      this.$refs["menu"].classList.remove("slide");
+      window.location = "/?sample=" + e.folder;
+    },
     getChapters: function () {
       let uri = window.location.href.split("#");
       if (uri.length == 2) {
@@ -160,7 +197,6 @@ export default {
     buttonhover: function () {
       console.log("button hover");
       this.$refs["menu"].classList.add("slide");
-
     },
     onFile1: function () {
       console.log(this.editor);
@@ -187,6 +223,9 @@ export default {
       let iframe = this.$refs["outputWindow"];
       iframe.style.width = outputRect.width + "px";
       iframe.style.height = outputRect.height + "px";
+    },
+    onMenuClose: function () {
+      this.$refs["menu"].classList.remove("slide");
     },
   },
 };
@@ -245,10 +284,23 @@ html {
   left: -320px;
   background-color: white;
   z-index: 100;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
 .slide {
   left: 0px;
   transition: 0.3s;
+}
+
+.menu-top-bar-button {
+  float: right;
+}
+
+.menu-content {
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 </style>
