@@ -1,17 +1,13 @@
 {
-  "repo": "xxx",
+  "github": "xxx",
   "title": "WebGPU tutorial",
   "content": [
     {
-      "folder": "test_base",
+      "folder": "test_folder_1",
       "title": "chapter 1",
       "files": [
         {
           "filename": "index.html",
-          "is_readonly": true
-        },
-        {
-          "filename": "test.txt",
           "is_readonly": true
         }
       ],

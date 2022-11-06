@@ -1,34 +1,38 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: column">
     <div ref="menu" class="menu">
-      <div>
-        <button class="menu-top-bar-button" @click="onMenuClose">X</button>
-      </div>
-      <h2>Title</h2>
+      <h2 class="menu-title">{{content.title}}</h2>
       <div class="menu-content">
         <ul>
-          <menu-item
-            v-for="item in content.content"
-            :key="item.title"
-            :item="item"
-          >
+          <menu-item v-for="item in content.content" :key="item.title" :item="item">
           </menu-item>
         </ul>
       </div>
-      <div>
-        <button>github</button>
-      </div>
     </div>
-    <div style="flex-grow: 0; flex-shrink: 1">
-      <button style="z-index: 200" @mouseover="buttonhover">test</button>
-      <button @click="onFile1">file one</button>
-      <button @click="onFile2">file two</button>
+    <div class="tool-bar">
+      <button style="z-index: 200" @click="onMenuButtonClicked" class="tab-button">
+        <menu-icon style="vertical-align: middle;"></menu-icon>
+      </button>
+      <button v-for="f in files" :filename="f.filename" :key="f.filename" :ref="el => fileRefs.push(el)"
+        @click="e => { onLoadFile(e, f); }" class="tab-button">
+        <file-outline-icon style="vertical-align: middle;"></file-outline-icon>
+        <span class="tab-button-text">{{ f.filename }}</span>
+      </button>
+      <div style="flex-grow:1;"></div>
+      <button v-if="content.repo" class="tab-button">
+        <git-icon style="vertical-align: middle;"></git-icon>
+        <span class="tab-button-text">REPO</span>
+      </button>
+      <button @click="onRun" class="tab-button">
+        <play-icon style="vertical-align: middle;"></play-icon>
+        <span class="tab-button-text">RUN</span>
+      </button>
     </div>
     <div class="main" ref="main">
       <div class="editor" id="container" ref="container"></div>
       <div id="adjust-bar" ref="movableBar"></div>
       <div class="output" id="output" ref="output">
-        <iframe ref="outputWindow" style="position: absolute"></iframe>
+        <iframe ref="outputWindow" class="sandbox"></iframe>
       </div>
     </div>
   </div>
@@ -38,15 +42,31 @@
 import * as monaco from "monaco-editor";
 import { ref } from "vue";
 import MenuItem from "./MenuItem.vue";
+import FileOutlineIcon from 'vue-material-design-icons/FileOutline.vue';
+import MenuIcon from 'vue-material-design-icons/Menu.vue';
+import PlayIcon from 'vue-material-design-icons/Play.vue';
+import GitIcon from 'vue-material-design-icons/Git.vue';
+
 let editor = null;
+let loadedFiles = new Map();
 
 export default {
   name: "App",
   components: {
     MenuItem,
+    FileOutlineIcon,
+    MenuIcon,
+    PlayIcon,
+    GitIcon
   },
   data: function () {
-    return { content: ref({}) };
+    return {
+      content: ref({}),
+      currentFolder: ref({}),
+      files: ref([]),
+      fileRefs: ref([]),
+      isMenuOpen: ref(false)
+    };
   },
   beforeUnmount: function () {
     this.eventBus.off("load");
@@ -61,35 +81,16 @@ export default {
 
     const folder = urlParams.get('sample');
 
-    console.log("folder", folder);
+    this.currentFolder = this.getDetailsByFolder(folder);
 
     this.eventBus.on("load", (e) => {
       this.onLoadSample(e);
     });
 
-    this.getChapters();
-    /*
-        var jsCode = [
-          '"use strict";',
-          "function Person(age) {",
-          "	if (age) {",
-          "		this.age = age;",
-          "	}",
-          "}",
-          "Person.prototype.getAge = function () {",
-          "	return this.age;",
-          "};",
-        ].join("\n");*/
-
-    var html = [
-      "<html>",
-      "<body>",
-      "<p>tesatdf</p>",
-      "<img src='logo.png' />",
-      "</body>",
-      "<script>console.log('test');< /script>",
-      "</html>",
-    ].join("\n");
+    if (this.currentFolder !== null) {
+      this.files = [];
+      this.files.push(...this.currentFolder.files);
+    }
 
     this.$nextTick(async () => {
       let movable = this.$refs["movableBar"];
@@ -100,7 +101,6 @@ export default {
       let self = this;
 
       let movableOnMouseMove = function (e) {
-        //console.log("mouse move");
         e.stopPropagation();
         e.preventDefault();
         const dx = e.screenX - mouseX;
@@ -122,6 +122,7 @@ export default {
         document.removeEventListener("mouseup", movableOnMouseUp);
         self.updateIFrameSize();
         self.$refs["outputWindow"].style.pointerEvents = "auto";
+        self.$refs["container"].style.pointerEvents = "auto";
       };
 
       let timer = null;
@@ -142,6 +143,7 @@ export default {
         document.addEventListener("mouseup", movableOnMouseUp);
         // cancel iframe mouse event https://www.gyrocode.com/articles/how-to-detect-mousemove-event-over-iframe-element/
         self.$refs["outputWindow"].style.pointerEvents = "none";
+        self.$refs["container"].style.pointerEvents = "none";
 
         e.stopPropagation();
         e.preventDefault();
@@ -149,9 +151,13 @@ export default {
 
       self.updateIFrameSize();
 
+      const data = await import('./CodeStage.json');
+      monaco.editor.defineTheme('codestage', data);
+      monaco.editor.setTheme('codestage');
+
       editor = monaco.editor.create(document.getElementById("container"), {
-        value: html,
-        language: "html",
+        value: '',
+        language: undefined,
         automaticLayout: true,
         suggest: {
           showSnippets: false,
@@ -173,9 +179,38 @@ export default {
         snippetSuggestions: "none",
         hover: { enabled: false },
       });
+
+      this.onLoadFile(null, this.files[0])
+
     });
   },
   methods: {
+    getDetailsByFolder: function (folderName) {
+      function helper(node) {
+        if (node.folder === folderName) {
+          return node;
+        }
+        else {
+          if (node.sub_chapters && node.sub_chapters.length > 0) {
+            for (let n of node.sub_chapters) {
+              const r = helper(n);
+              if (r !== null) {
+                return r;
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      for (let n of this.content.content) {
+        const r = helper(n);
+        if (r !== null) {
+          return r;
+        }
+      }
+      return null;
+    },
     fetchContent: async function () {
       let manifest = await fetch("manifest.json");
       let jsonContent = await manifest.json();
@@ -186,23 +221,66 @@ export default {
       this.$refs["menu"].classList.remove("slide");
       window.location = "/?sample=" + e.folder;
     },
-    getChapters: function () {
+    /*getChapters: function () {
       let uri = window.location.href.split("#");
       if (uri.length == 2) {
         let chapter = uri[1];
         return chapter;
       }
       return "default";
+    },*/
+    /*onMenuButtonHover: function () {
+      if (!this.isMenuOpen) {
+        this.isMenuOpen = true;
+        this.$refs["menu"].classList.add("slide");
+      }
+    },*/
+    onMenuButtonClicked: function () {
+      if (this.isMenuOpen) {
+        this.isMenuOpen = false;
+        this.$refs["menu"].classList.remove("slide");
+      }
+      else {
+        this.isMenuOpen = true;
+        this.$refs["menu"].classList.add("slide");
+      }
     },
-    buttonhover: function () {
-      console.log("button hover");
-      this.$refs["menu"].classList.add("slide");
+    onLoadFile: async function (e, f) {
+
+      for (let re of this.fileRefs) {
+        if (re.getAttribute('filename') === f.filename) {
+          re.classList.add('active');
+        }
+        else {
+          re.classList.remove('active')
+        }
+      }
+
+      const filePath = this.currentFolder.folder + '/' + f.filename;
+
+      if (loadedFiles.has(filePath)) {
+        const model = loadedFiles.get(filePath);
+        editor.setModel(model);
+      }
+      else {
+
+        let file = await fetch(filePath);
+        let fileContent = await file.text();
+        const model = monaco.editor.createModel(
+          fileContent,
+          undefined, // language
+          monaco.Uri.file(f.filename) // uri
+        )
+        editor.setModel(model);
+        loadedFiles.set(filePath, model);
+      }
+      document.title = this.currentFolder.title + ' - ' + f.filename;
     },
     onFile1: function () {
       console.log(this.editor);
       editor.getModel().setValue("test");
     },
-    onFile2: function () {
+    onRun: function () {
       const html_string = editor.getModel().getValue();
       let newHTMLDocument =
         document.implementation.createHTMLDocument("preview");
@@ -223,23 +301,23 @@ export default {
       let iframe = this.$refs["outputWindow"];
       iframe.style.width = outputRect.width + "px";
       iframe.style.height = outputRect.height + "px";
-    },
-    onMenuClose: function () {
-      this.$refs["menu"].classList.remove("slide");
-    },
+    }
   },
 };
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Code+Pro&display=swap');
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
   flex-direction: row;
   height: 100%;
   overflow: hidden;
+  background-color: #0e0b33;
 }
 
 html {
@@ -257,6 +335,11 @@ html {
 .editor {
   display: block;
   width: 50%;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2b284b;
+  background-color: #1a183d;
 }
 
 #adjust-bar {
@@ -287,6 +370,13 @@ html {
   box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   display: flex;
   flex-direction: column;
+  background-color: #0e0b33;
+}
+
+.menu-title {
+  margin-top: 40px;
+  color: #ffffff;
+  text-align: center;
 }
 
 .slide {
@@ -302,5 +392,88 @@ html {
   flex-grow: 1;
   overflow-y: scroll;
   overflow-x: hidden;
+  padding: 10px;
+  margin-left: 10px;
+}
+
+.tab-button {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  color: #9492b1;
+  cursor: pointer;
+}
+
+.tab-button:hover {
+  color: #ffffff;
+}
+
+.tab-button-text {
+  margin-left: 8px;
+  font-family: 'Source Code Pro', monospace;
+}
+
+.tab-button.active {
+  border-bottom-width: 4px;
+  border-style: solid;
+  border-color: #4631c5;
+  cursor: default;
+  color: #ffffff;
+}
+
+.tool-bar {
+  flex-grow: 0;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: row;
+  height: 40px;
+  padding-right: 10px;
+}
+
+.sandbox {
+  position: absolute;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2b284b;
+  background-color: #1a183d;
+}
+
+.menu-item {
+  color: #9492b1;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background-color: #1a183d;
+  border-radius: 4px;
+  border-radius: 2px;
+  border-style: solid;
+  border-color: #1a183d;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #222045;
+  border-radius: 4px;
+}
+
+ul {
+  padding-inline-start: 8px;
+}
+
+li {
+  margin: 0px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <li class="menu-item clickable-item">
     <h3 :class="{ clickable: item.folder }" @click="onSelect">
       {{ item.title }}
     </h3>
@@ -36,12 +36,24 @@ export default {
 </script>
   
 <style>
+
+.clickable-item {
+  padding: 2px;
+}
+
 .clickable {
   cursor: pointer;
+  margin-block-start: 4px;
+  margin-block-end: 4px;
 }
 
 .clickable:hover {
-  background-color: red;
+  background-color: #222045;
+  color: #ffffff;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #222045;
 }
 </style>
   
