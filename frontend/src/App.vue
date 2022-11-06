@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: column">
     <div ref="menu" class="menu">
-      <h2 class="menu-title">{{content.title}}</h2>
+      <h2 class="menu-title">{{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       content.title                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }}</h2>
       <div class="menu-content">
         <ul>
           <menu-item v-for="item in content.content" :key="item.title" :item="item">
@@ -221,20 +221,6 @@ export default {
       this.$refs["menu"].classList.remove("slide");
       window.location = "/?sample=" + e.folder;
     },
-    /*getChapters: function () {
-      let uri = window.location.href.split("#");
-      if (uri.length == 2) {
-        let chapter = uri[1];
-        return chapter;
-      }
-      return "default";
-    },*/
-    /*onMenuButtonHover: function () {
-      if (!this.isMenuOpen) {
-        this.isMenuOpen = true;
-        this.$refs["menu"].classList.add("slide");
-      }
-    },*/
     onMenuButtonClicked: function () {
       if (this.isMenuOpen) {
         this.isMenuOpen = false;
@@ -243,6 +229,24 @@ export default {
       else {
         this.isMenuOpen = true;
         this.$refs["menu"].classList.add("slide");
+      }
+    },
+    fetchFileByPath: async function (filePath) {
+      if (loadedFiles.has(filePath)) {
+        const model = loadedFiles.get(filePath);
+        return model;
+      }
+      else {
+
+        let file = await fetch(filePath);
+        let fileContent = await file.text();
+        const model = monaco.editor.createModel(
+          fileContent,
+          undefined, // language
+          monaco.Uri.file(filePath) // uri
+        )
+        loadedFiles.set(filePath, model);
+        return model;
       }
     },
     onLoadFile: async function (e, f) {
@@ -257,36 +261,41 @@ export default {
       }
 
       const filePath = this.currentFolder.folder + '/' + f.filename;
+      const model = await this.fetchFileByPath(filePath);
+      editor.setModel(model);
 
-      if (loadedFiles.has(filePath)) {
-        const model = loadedFiles.get(filePath);
-        editor.setModel(model);
-      }
-      else {
-
-        let file = await fetch(filePath);
-        let fileContent = await file.text();
-        const model = monaco.editor.createModel(
-          fileContent,
-          undefined, // language
-          monaco.Uri.file(f.filename) // uri
-        )
-        editor.setModel(model);
-        loadedFiles.set(filePath, model);
-      }
       document.title = this.currentFolder.title + ' - ' + f.filename;
     },
-    onFile1: function () {
-      console.log(this.editor);
-      editor.getModel().setValue("test");
-    },
-    onRun: function () {
-      const html_string = editor.getModel().getValue();
+    onRun: async function () {
+      const filePath = this.currentFolder.folder + '/index.html';
+      const model = await this.fetchFileByPath(filePath);
+      const html_string = model.getValue();
+
       let newHTMLDocument =
         document.implementation.createHTMLDocument("preview");
       newHTMLDocument.documentElement.innerHTML = html_string;
+
+      //overwrite scripts
+      let scriptTags = newHTMLDocument.getElementsByTagName('script');
+      for (let t = 0; t < scriptTags.length; ++t) {
+        const src = scriptTags[t].getAttribute('src');
+
+        if (src) {
+          for (let f of this.currentFolder.files) {
+            if (f.filename === src) {
+              const path = this.currentFolder.folder + '/' + src;
+              scriptTags[t].removeAttribute('src');
+              const model = await this.fetchFileByPath(path);
+              const script_string = model.getValue();
+              scriptTags[t].textContent = script_string;
+              break;
+            }
+          }
+        }
+      }
+
       let base = document.createElement("base");
-      base.setAttribute("href", "test_base/");
+      base.setAttribute("href", this.currentFolder.folder + "/");
       newHTMLDocument.head.appendChild(base);
       let iframeDoc = this.$refs["outputWindow"].contentDocument;
       iframeDoc.removeChild(iframeDoc.documentElement);

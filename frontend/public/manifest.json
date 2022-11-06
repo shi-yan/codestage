@@ -11,7 +11,11 @@
           "is_readonly": true
         },
         {
-          "filename": "test.txt",
+          "filename": "test.js",
+          "is_readonly": true
+        },
+        {
+          "filename": "test.glsl",
           "is_readonly": true
         }
       ],
