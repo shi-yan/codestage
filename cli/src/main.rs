@@ -20,6 +20,7 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
     }*/
 
     if content.contains_key("files") {
+        let mut has_seen_index = false;
         if let toml::Value::Array(files) = content.get("files").unwrap() {
             for f in files {
                 if let toml::Value::Table(ref file) = f {
@@ -27,8 +28,24 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
                         println!("Toml Format Error: A file must contain a filename.");
                         return false;
                     }
+                    else {
+                        if let toml::Value::String(filename) = file.get("filename").unwrap() {
+                            if filename == "index.html"{
+                                has_seen_index = true;
+                            }
+                        }
+                        else{
+                            println!("Toml Format Error: Filename must be a string.");
+                            return false;
+                        }
+                    }
                 }
             }
+        }
+
+        if has_seen_index == false {
+            println!("Toml Format Error: There must be a index.html in each folder.");
+            return false;
         }
     }
 
