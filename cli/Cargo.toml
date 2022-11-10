@@ -5,10 +5,10 @@ edition = "2021"
 authors = ["Shi Yan <billconan@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A static site generator to create javascript playground demo"
-readme = "README.md"
+readme = "../README.md"
 homepage = "https://github.com/shi-yan/codestage"
 repository = "https://github.com/shi-yan/codestage"
-keywords = ["cli", "static site generator", "demo", "javascript playground"]
+keywords = ["cli", "static-site", "demo", "code-playground", "javascript"]
 categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,3 +18,5 @@ toml = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rust-embed = "6.4"
+clap = { version = "4.0", features = ["derive"]}
+mustache = "0.9"

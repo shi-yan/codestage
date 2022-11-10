@@ -1,5 +1,7 @@
 {
   "github": "xxx",
+  "prefix": "hahaha",
+  "target": "target",
   "title": "WebGPU tutorial",
   "content": [
     {

@@ -1,5 +1,7 @@
 title = "WebGPU tutorial"
 github = "xxx"
+prefix = "hahaha"
+target = "target"
 
 [[content]]
 title = "chapter 1"
