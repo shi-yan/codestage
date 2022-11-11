@@ -49,13 +49,19 @@ fn verify_chapter(
     if content.contains_key("folder") {
         if let Some(folder) = content.get("folder") {
             if let toml::Value::String(folder_str) = folder {
-                let options = CopyOptions::new();
-                let handle = |process_info: TransitProcess| {
-                    println!("{}", process_info.total_bytes);
+                let mut options = CopyOptions::new();
+                options.overwrite = true;
+                let handle = |_process_info: TransitProcess| {
+                    //println!("{}", process_info.total_bytes);
                     fs_extra::dir::TransitProcessResult::ContinueOrAbort
                 };
-                fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle)
-                    .expect(format!("Can't copy folder {} to {}.", &folder_str, &target).as_str());
+                match fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle)
+                {
+                    Ok(_r) => {}
+                    Err(e) => {
+                        println!("Warning: Can't copy folder {} to {}. {}", &folder_str, &target, &e);
+                    }
+                }
             } else {
                 println!("Toml Format Error: A folder must be a string.");
                 return false;
