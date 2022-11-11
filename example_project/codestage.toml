@@ -1,6 +1,6 @@
 title = "CodeStage example"
 github = "xxx"
-prefix = ""
+prefix = "demo"
 target = "dist"
 
 [[content]]

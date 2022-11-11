@@ -1,9 +1,19 @@
-# frontend
+CodeStage is a static site generator to generate javascript playground. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
 
-## Project setup
+[Monaco](https://microsoft.github.io/monaco-editor/playground.html)
+[WebGPU samples](https://austin-eng.com/webgpu-samples)
+[Bauble](https://bauble.studio/)
+[Goplay][https://goplay.space/]
+
+All these sites seem to build their own solution. CodeStage, on the other hand, is a free and reusable solution.
+
+To see a demo of a deployed CodeStage site: [WebGPUTutorial](https://shi-yan.github.io/WebGPUTutorial/?sample=test_base)
+
+## Usage
 ```
-npm install
+cargo install codestage
 ```
+
 
 ### Compiles and hot-reloads for development
 ```
