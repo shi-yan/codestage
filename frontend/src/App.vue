@@ -212,14 +212,14 @@ export default {
       return null;
     },
     fetchContent: async function () {
-      let manifest = await fetch("manifest.json");
+      let manifest = await fetch("{{_codestage_prefix_}}/manifest.json");
       let jsonContent = await manifest.json();
       return jsonContent;
     },
     onLoadSample: function (e) {
       console.log(e);
       this.$refs["menu"].classList.remove("slide");
-      window.location = "/?sample=" + e.folder;
+      window.location = "{{_codestage_prefix_}}/?sample=" + e.folder;
     },
     onMenuButtonClicked: function () {
       if (this.isMenuOpen) {
@@ -238,7 +238,7 @@ export default {
       }
       else {
 
-        let file = await fetch(filePath);
+        let file = await fetch('{{_codestage_prefix_}}/'+filePath);
         let fileContent = await file.text();
         const model = monaco.editor.createModel(
           fileContent,

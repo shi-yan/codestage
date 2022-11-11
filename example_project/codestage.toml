@@ -1,11 +1,11 @@
-title = "WebGPU tutorial"
+title = "CodeStage example"
 github = "xxx"
-prefix = "hahaha"
-target = "target"
+prefix = ""
+target = "dist"
 
 [[content]]
 title = "chapter 1"
-folder = "test_folder_1"
+folder = "test_base"
 
 [[content.files]]
 filename = "index.html"

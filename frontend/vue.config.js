@@ -11,6 +11,6 @@ module.exports = defineConfig({
       new MonacoWebpackPlugin()
     ]
   },
-  publicPath: '{{WebGPUTutorial}}',
+  publicPath: '{{_codestage_prefix_}}',
   outputDir: path.resolve(__dirname, "../cli/dist"),
 })

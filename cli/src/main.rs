@@ -1,18 +1,15 @@
-#[macro_use]
-extern crate mustache;
-
 use clap::Parser;
+use rust_embed::EmbeddedFile;
 use rust_embed::RustEmbed;
-use std::env;
 use std::fs;
 use std::fs::File;
-use std::io::{self, Read};
-use toml::map::Map;
-use toml::Value;
+use std::io::ErrorKind;
 use std::path::Path;
-use mustache::MapBuilder;
-
-
+use std::path::PathBuf;
+use toml::Value;
+extern crate fs_extra;
+use fs_extra::dir::CopyOptions;
+use fs_extra::TransitProcess;
 #[derive(RustEmbed)]
 #[folder = "dist/"]
 struct Asset;
@@ -21,7 +18,7 @@ struct Asset;
 #[command(author, version, about, long_about = None)]
 struct Args {
     /// Output folder
-    #[arg(short, long, default_value_t = String::from("target"))]
+    #[arg(short, long, default_value_t = String::from("dist"))]
     target: String,
 
     /// Manifest file
@@ -32,7 +29,11 @@ struct Args {
     prefix: Option<String>,
 }
 
-fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) -> bool {
+fn verify_chapter(
+    content: &toml::map::Map<String, toml::Value>,
+    indent: usize,
+    target: &str,
+) -> bool {
     if !content.contains_key("title") {
         println!("Toml Format Error: A Chapter must have a title.");
         return false;
@@ -45,10 +46,22 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
         );
     }
 
-    /*if !content.contains_key("folder") {
-        println!("Toml Format Error: A Chapter must have a folder.");
-        return false;
-    }*/
+    if content.contains_key("folder") {
+        if let Some(folder) = content.get("folder") {
+            if let toml::Value::String(folder_str) = folder {
+                let options = CopyOptions::new();
+                let handle = |process_info: TransitProcess| {
+                    println!("{}", process_info.total_bytes);
+                    fs_extra::dir::TransitProcessResult::ContinueOrAbort
+                };
+                fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle)
+                    .expect(format!("Can't copy folder {} to {}.", &folder_str, &target).as_str());
+            } else {
+                println!("Toml Format Error: A folder must be a string.");
+                return false;
+            }
+        }
+    }
 
     if content.contains_key("files") {
         let mut has_seen_index = false;
@@ -82,7 +95,7 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
         if let toml::Value::Array(content) = content.get("sub_chapters").unwrap() {
             for c in content {
                 if let toml::Value::Table(c) = c {
-                    if !verify_chapter(c, indent + 2) {
+                    if !verify_chapter(c, indent + 2, target) {
                         return false;
                     }
                 } else {
@@ -98,11 +111,22 @@ fn verify_chapter(content: &toml::map::Map<String, toml::Value>, indent: usize) 
     return true;
 }
 
+fn fetch_filecontent(path: &PathBuf, f: &EmbeddedFile, prefix_str: &str) -> Vec<u8> {
+    if let Some(ext) = path.extension() {
+        if ext == "html" || ext == "js" {
+            let content = String::from_utf8_lossy(&f.data);
+
+            if let Some(_) = content.find("{{_codestage_prefix_}}") {
+                let rendered = content.replace("{{_codestage_prefix_}}", prefix_str);
+                return rendered.as_bytes().to_vec();
+            }
+        }
+    }
+    return f.data.to_vec();
+}
+
 fn main() {
     let args = Args::parse();
-    let template = mustache::compile_str("hello {{name}}").unwrap();
-
-
     //https://patorjk.com/software/taag/#p=display&f=Ogre&t=Code%20Stage
     println!(
         "     ___          _        __ _                   
@@ -113,7 +137,8 @@ fn main() {
                                        |___/      "
     );
 
-    let contents = fs::read_to_string(args.manifest).expect("Should have been able to read the file");
+    let contents =
+        fs::read_to_string(args.manifest).expect("Should have been able to read the file");
 
     let value = match contents.parse::<Value>() {
         Err(error) => {
@@ -124,7 +149,6 @@ fn main() {
     };
 
     if let toml::Value::Table(ref global) = value {
-
         let mut target_folder = args.target.clone();
         if global.contains_key("target") {
             if let Some(target) = global.get("target") {
@@ -133,13 +157,13 @@ fn main() {
                 }
             }
         }
-    
+
         let target_folder_exists = Path::new(&target_folder).exists();
-    
+
         if !target_folder_exists {
-            fs::create_dir(&target_folder).expect(format!("Unable to create target folder: {}.", &target_folder).as_str());
-        }
-        else {
+            fs::create_dir(&target_folder)
+                .expect(format!("Unable to create target folder: {}.", &target_folder).as_str());
+        } else {
             let target_is_dir: bool = Path::new(&target_folder).is_dir();
             if !target_is_dir {
                 println!("Target {} is not a folder.", &target_folder);
@@ -147,8 +171,49 @@ fn main() {
             }
         }
 
+        let prefix_str = if let Some(p) = args.prefix {
+            p
+        } else {
+            String::from(
+                global
+                    .get("prefix")
+                    .unwrap_or(&toml::Value::String("".to_string()))
+                    .as_str()
+                    .unwrap_or(""),
+            )
+        };
+
         for file in Asset::iter() {
-            println!("{}", file.as_ref());
+            println!("{}/{}", &target_folder, file.as_ref());
+
+            let mut path = PathBuf::new();
+            path.push(&target_folder);
+            path.push(file.as_ref());
+
+            let f = Asset::get(file.as_ref()).unwrap();
+
+            let data: Vec<u8> = fetch_filecontent(&path, &f, &prefix_str);
+
+            if let Err(e) = fs::write(&path, &data) {
+                println!("{:?}", e.kind());
+
+                match e.kind() {
+                    ErrorKind::NotFound => {
+                        fs::create_dir_all(path.parent().unwrap()).unwrap();
+
+                        if let Err(e) =
+                            fs::write(format!("{}/{}", &target_folder, file.as_ref()), &data)
+                        {
+                            println!("Unable to write {} {}.", file.as_ref(), e.kind());
+                            return;
+                        }
+                    }
+                    _ => {
+                        println!("Unable to write {} {}.", file.as_ref(), e.kind());
+                        return;
+                    }
+                }
+            }
         }
 
         if !global.contains_key("title") {
@@ -167,7 +232,7 @@ fn main() {
         if let toml::Value::Array(ref content) = content {
             for c in content {
                 if let toml::Value::Table(ref chapter) = c {
-                    if verify_chapter(chapter, 0) == false {
+                    if verify_chapter(chapter, 0, &target_folder) == false {
                         return;
                     }
                 } else {
@@ -175,14 +240,11 @@ fn main() {
                 }
             }
         }
+
+        let file = File::create(format!("{}/manifest.json", target_folder)).unwrap();
+        serde_json::to_writer_pretty(file, &value).expect("Unable to write the manifest file.");
     } else {
-        println!("Toml Format Error: The input file doesn't contain configurations.");
+        println!("The input file doesn't contain configurations.");
         return;
     }
-
-    //println!("{:?}", value);
-    let mut file = File::create("manifest.json").unwrap();
-
-    serde_json::to_writer_pretty(file, &value).unwrap();
-    //assert_eq!(value["foo"].as_str(), Some("bar"));
 }
