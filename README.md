@@ -6,31 +6,47 @@ CodeStage is a static site generator to generate javascript playground. I implem
 
 [WebGPU samples](https://austin-eng.com/webgpu-samples)
 
-[Bauble](https://bauble.studio/)
+[Bauble](https://bauble.studio)
 
-[Goplay][https://goplay.space/]
+[Goplay](https://goplay.space)
 
 All these sites seem to build their own solution. CodeStage, on the other hand, is a free and reusable solution.
 
 To see a demo of a deployed CodeStage site: [WebGPUTutorial](https://shi-yan.github.io/WebGPUTutorial/?sample=test_base)
 
-## Usage
+## Installation
 ```
 cargo install codestage
 ```
 
+## Usage
+
 Create a project folder and craft a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
 
+```toml
 
-### Compiles and hot-reloads for development
-```
-npm run serve
 ```
 
-### Compiles and minifies for production
+Each indivisual sample should be in a separate folder.
+There can be a utility folder that is shared by all samples.
+
+Run this command to build your project
+
+```bash
+codestage --target <target_folder>
 ```
+
+Once done, the static site is generated under <target_folder>
+
+## Build
+```
+cd frontend
+npm i --save
 npm run build
+cd cli
+cargo build --release
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Implementation details
+
+
