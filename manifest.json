@@ -1,6 +1,6 @@
 {
   "github": "https://github.com/shi-yan/codestage",
-  "prefix": "",
+  "prefix": "/codestage",
   "target": "dist",
   "title": "CodeStage example",
   "utilities": [
