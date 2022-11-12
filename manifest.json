@@ -67,6 +67,24 @@
           "is_readonly": true
         }
       ]
+    },
+    {
+      "folder": "halo",
+      "title": "3. Halo",
+      "files": [
+        {
+          "filename": "index.html",
+          "is_readonly": true
+        },
+        {
+          "filename": "halo.js",
+          "is_readonly": true
+        },
+        {
+          "filename": "voronoi.js",
+          "is_readonly": true
+        }
+      ]
     }
   ]
 }
