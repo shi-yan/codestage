@@ -1,30 +1,48 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: column">
     <div ref="menu" class="menu">
-      <h2 class="menu-title">{{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       content.title                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }}</h2>
+      <h2 class="menu-title">{{ content.title }}</h2>
       <div class="menu-content">
         <ul>
-          <menu-item v-for="item in content.content" :key="item.title" :item="item">
+          <menu-item
+            v-for="item in content.content"
+            :key="item.title"
+            :item="item"
+          >
           </menu-item>
         </ul>
       </div>
     </div>
     <div class="tool-bar">
-      <button style="z-index: 200" @click="onMenuButtonClicked" class="tab-button">
-        <menu-icon style="vertical-align: middle;"></menu-icon>
+      <button
+        style="z-index: 200"
+        @click="onMenuButtonClicked"
+        class="tab-button"
+      >
+        <menu-icon style="vertical-align: middle"></menu-icon>
       </button>
-      <button v-for="f in files" :filename="f.filename" :key="f.filename" :ref="el => fileRefs.push(el)"
-        @click="e => { onLoadFile(e, f); }" class="tab-button">
-        <file-outline-icon style="vertical-align: middle;"></file-outline-icon>
+      <button
+        v-for="f in files"
+        :filename="f.filename"
+        :key="f.filename"
+        :ref="(el) => fileRefs.push(el)"
+        @click="
+          (e) => {
+            onLoadFile(e, f);
+          }
+        "
+        class="tab-button"
+      >
+        <file-outline-icon style="vertical-align: middle"></file-outline-icon>
         <span class="tab-button-text">{{ f.filename }}</span>
       </button>
-      <div style="flex-grow:1;"></div>
+      <div style="flex-grow: 1"></div>
       <button v-if="content.repo" class="tab-button">
-        <git-icon style="vertical-align: middle;"></git-icon>
+        <git-icon style="vertical-align: middle"></git-icon>
         <span class="tab-button-text">REPO</span>
       </button>
       <button @click="onRun" class="tab-button">
-        <play-icon style="vertical-align: middle;"></play-icon>
+        <play-icon style="vertical-align: middle"></play-icon>
         <span class="tab-button-text">RUN</span>
       </button>
     </div>
@@ -42,10 +60,10 @@
 import * as monaco from "monaco-editor";
 import { ref } from "vue";
 import MenuItem from "./MenuItem.vue";
-import FileOutlineIcon from 'vue-material-design-icons/FileOutline.vue';
-import MenuIcon from 'vue-material-design-icons/Menu.vue';
-import PlayIcon from 'vue-material-design-icons/Play.vue';
-import GitIcon from 'vue-material-design-icons/Git.vue';
+import FileOutlineIcon from "vue-material-design-icons/FileOutline.vue";
+import MenuIcon from "vue-material-design-icons/Menu.vue";
+import PlayIcon from "vue-material-design-icons/Play.vue";
+import GitIcon from "vue-material-design-icons/Git.vue";
 
 let editor = null;
 let loadedFiles = new Map();
@@ -57,7 +75,7 @@ export default {
     FileOutlineIcon,
     MenuIcon,
     PlayIcon,
-    GitIcon
+    GitIcon,
   },
   data: function () {
     return {
@@ -65,7 +83,7 @@ export default {
       currentFolder: ref({}),
       files: ref([]),
       fileRefs: ref([]),
-      isMenuOpen: ref(false)
+      isMenuOpen: ref(false),
     };
   },
   beforeUnmount: function () {
@@ -79,18 +97,20 @@ export default {
 
     const urlParams = new URLSearchParams(queryString);
 
-    const folder = urlParams.get('sample');
+    const folder = urlParams.get("sample");
 
-    this.currentFolder = this.getDetailsByFolder(folder);
-
-    this.eventBus.on("load", (e) => {
-      this.onLoadSample(e);
-    });
+    this.currentFolder =
+      (folder && this.getDetailsByFolder(folder)) ||
+      this.getFirstFolderDetails();
 
     if (this.currentFolder !== null) {
       this.files = [];
       this.files.push(...this.currentFolder.files);
     }
+
+    this.eventBus.on("load", (e) => {
+      this.onLoadSample(e);
+    });
 
     this.$nextTick(async () => {
       let movable = this.$refs["movableBar"];
@@ -151,12 +171,12 @@ export default {
 
       self.updateIFrameSize();
 
-      const data = await import('./CodeStage.json');
-      monaco.editor.defineTheme('codestage', data);
-      monaco.editor.setTheme('codestage');
+      const data = await import("./CodeStage.json");
+      monaco.editor.defineTheme("codestage", data);
+      monaco.editor.setTheme("codestage");
 
       editor = monaco.editor.create(document.getElementById("container"), {
-        value: '',
+        value: "",
         language: undefined,
         automaticLayout: true,
         suggest: {
@@ -180,17 +200,40 @@ export default {
         hover: { enabled: false },
       });
 
-      this.onLoadFile(null, this.files[0])
-
+      this.onLoadFile(null, this.files[0]);
     });
   },
   methods: {
+    getFirstFolderDetails: function () {
+      function helper(node) {
+        if (node.folder) {
+          return node;
+        } else {
+          if (node.sub_chapters && node.sub_chapters.length > 0) {
+            for (let n of node.sub_chapters) {
+              const r = helper(n);
+              if (r !== null) {
+                return r;
+              }
+            }
+          }
+        }
+        return null;
+      }
+
+      for (let n of this.content.content) {
+        const r = helper();
+        if (r !== null) {
+          return r;
+        }
+      }
+      return null;
+    },
     getDetailsByFolder: function (folderName) {
       function helper(node) {
         if (node.folder === folderName) {
           return node;
-        }
-        else {
+        } else {
           if (node.sub_chapters && node.sub_chapters.length > 0) {
             for (let n of node.sub_chapters) {
               const r = helper(n);
@@ -209,7 +252,7 @@ export default {
           return r;
         }
       }
-      return '';
+      return null;
     },
     fetchContent: async function () {
       let manifest = await fetch("{{_codestage_prefix_}}/manifest.json");
@@ -225,8 +268,7 @@ export default {
       if (this.isMenuOpen) {
         this.isMenuOpen = false;
         this.$refs["menu"].classList.remove("slide");
-      }
-      else {
+      } else {
         this.isMenuOpen = true;
         this.$refs["menu"].classList.add("slide");
       }
@@ -235,39 +277,35 @@ export default {
       if (loadedFiles.has(filePath)) {
         const model = loadedFiles.get(filePath);
         return model;
-      }
-      else {
-
-        let file = await fetch('{{_codestage_prefix_}}/'+filePath);
+      } else {
+        let file = await fetch("{{_codestage_prefix_}}/" + filePath);
         let fileContent = await file.text();
         const model = monaco.editor.createModel(
           fileContent,
           undefined, // language
           monaco.Uri.file(filePath) // uri
-        )
+        );
         loadedFiles.set(filePath, model);
         return model;
       }
     },
     onLoadFile: async function (e, f) {
-
       for (let re of this.fileRefs) {
-        if (re.getAttribute('filename') === f.filename) {
-          re.classList.add('active');
-        }
-        else {
-          re.classList.remove('active')
+        if (re.getAttribute("filename") === f.filename) {
+          re.classList.add("active");
+        } else {
+          re.classList.remove("active");
         }
       }
 
-      const filePath = this.currentFolder.folder + '/' + f.filename;
+      const filePath = this.currentFolder.folder + "/" + f.filename;
       const model = await this.fetchFileByPath(filePath);
       editor.setModel(model);
 
-      document.title = this.currentFolder.title + ' - ' + f.filename;
+      document.title = this.currentFolder.title + " - " + f.filename;
     },
     onRun: async function () {
-      const filePath = this.currentFolder.folder + '/index.html';
+      const filePath = this.currentFolder.folder + "/index.html";
       const model = await this.fetchFileByPath(path);
       const html_string = model.getValue();
 
@@ -276,15 +314,15 @@ export default {
       newHTMLDocument.documentElement.innerHTML = html_string;
 
       //overwrite scripts
-      let scriptTags = newHTMLDocument.getElementsByTagName('script');
+      let scriptTags = newHTMLDocument.getElementsByTagName("script");
       for (let t = 0; t < scriptTags.length; ++t) {
-        const src = scriptTags[t].getAttribute('src');
+        const src = scriptTags[t].getAttribute("src");
 
         if (src) {
           for (let f of this.currentFolder.files) {
             if (f.filename === src) {
-              const path = this.currentFolder.folder + '/' + src;
-              scriptTags[t].removeAttribute('src');
+              const path = this.currentFolder.folder + "/" + src;
+              scriptTags[t].removeAttribute("src");
               const model = await this.fetchFileByPath(path);
               const script_string = model.getValue();
               scriptTags[t].textContent = script_string;
@@ -294,9 +332,17 @@ export default {
         }
       }
 
-      let base = document.createElement("base");
-      base.setAttribute("href", this.currentFolder.folder + "/");
-      newHTMLDocument.head.appendChild(base);
+      let exisiting = newHTMLDocument.head.getElementsByTagName("base");
+      if (exisiting.length > 0) {
+        for (let e = 0; e < exisiting.length; ++e) {
+          exisiting[e].setAttribute("href", this.currentFolder.folder + "/");
+        }
+      } else {
+        let base = document.createElement("base");
+        base.setAttribute("href", this.currentFolder.folder + "/");
+        newHTMLDocument.head.appendChild(base);
+      }
+
       let iframeDoc = this.$refs["outputWindow"].contentDocument;
       iframeDoc.removeChild(iframeDoc.documentElement);
       this.$refs["outputWindow"].srcdoc =
@@ -310,16 +356,16 @@ export default {
       let iframe = this.$refs["outputWindow"];
       iframe.style.width = outputRect.width + "px";
       iframe.style.height = outputRect.height + "px";
-    }
+    },
   },
 };
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Code+Pro&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&family=Source+Code+Pro&display=swap");
 
 #app {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
@@ -420,7 +466,7 @@ html {
 
 .tab-button-text {
   margin-left: 8px;
-  font-family: 'Source Code Pro', monospace;
+  font-family: "Source Code Pro", monospace;
 }
 
 .tab-button.active {

@@ -227,6 +227,27 @@ fn main() {
             return;
         }
 
+        if let Some(utilities) = global.get("utilities") {
+            if let toml::Value::Array(ref utility_dirs) = utilities {
+                for u in utility_dirs {
+                    if let toml::Value::String(u_str) = u {
+                        let mut options = CopyOptions::new();
+                        options.overwrite = true;
+                        let handle = |_process_info: TransitProcess| {
+                            fs_extra::dir::TransitProcessResult::ContinueOrAbort
+                        };
+                        match fs_extra::copy_items_with_progress(&[u_str], &target_folder, &options, handle)
+                        {
+                            Ok(_r) => {}
+                            Err(e) => {
+                                println!("Warning: Can't copy folder {} to {}. {}", &u_str, &target_folder, &e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         let content = match global.get("content") {
             None => {
                 println!("Warning: No content detected.");
