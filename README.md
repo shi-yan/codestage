@@ -18,7 +18,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.3
+cargo install codestage --version 0.1.0-alpha.4
 ```
 
 ## Usage
@@ -28,8 +28,8 @@ Create a project folder and craft a project file [codestage.toml](https://github
 ```toml
 # Title of the project (must have)
 title = "CodeStage example"
-# Github repo link (optional)
-github = "xxx"
+# Link to the repository (optional)
+repo = "xxx"
 # If not deployed under the root directory, this will be needed. The first slash is required. (optional)
 prefix = "/codestage"
 # specify the output folder (optional)

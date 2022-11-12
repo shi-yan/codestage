@@ -1,5 +1,5 @@
 title = "CodeStage example"
-github = "https://github.com/shi-yan/codestage"
+repo = "https://github.com/shi-yan/codestage"
 # need to have the slash
 prefix = "/codestage"
 target = "dist"
@@ -68,7 +68,7 @@ filename = "voronoi.js"
 is_readonly = true
 
 [[content]]
-title = "4. Spacerocks"
+title = "4. Space Rocks"
 folder = "spacerocks"
 
 [[content.files]]

@@ -37,7 +37,7 @@
         <span class="tab-button-text">{{ f.filename }}</span>
       </button>
       <div style="flex-grow: 1"></div>
-      <button v-if="content.repo" class="tab-button">
+      <button v-if="content.repo" @click="window.open(content.repo, '_blank');" class="tab-button">
         <git-icon style="vertical-align: middle"></git-icon>
         <span class="tab-button-text">REPO</span>
       </button>
