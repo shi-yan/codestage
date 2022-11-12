@@ -36,9 +36,17 @@ filename = "index.html"
 is_readonly = true
 
 [[content]]
-title = "chapter 2"
-folder = "basic_sample"
+title = "2. Electric Flower"
+folder = "electricflower"
 
 [[content.files]]
 filename = "index.html"
+is_readonly = true
+
+[[content.files]]
+filename = "flower.js"
+is_readonly = true
+
+[[content.files]]
+filename = "postprocess.js"
 is_readonly = true

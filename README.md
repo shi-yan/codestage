@@ -2,7 +2,7 @@ https://user-images.githubusercontent.com/326807/201398785-5eaf402e-ee41-46c4-bb
 
 CodeStage is a static site generator to generate javascript playground. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
 
-[Monaco](https://microsoft.github.io/monaco-editor/playground.html) [WebGPU samples](https://austin-eng.com/webgpu-samples) [Bauble](https://bauble.studio) [Goplay](https://goplay.space)
+[Monaco](https://microsoft.github.io/monaco-editor/playground.html) | [WebGPU samples](https://austin-eng.com/webgpu-samples) | [Bauble](https://bauble.studio) | [Goplay](https://goplay.space)
 
 All these sites seem to build their own solution. CodeStage, on the other hand, is a free and reusable solution.
 
@@ -12,7 +12,7 @@ All these sites seem to build their own solution. CodeStage, on the other hand, 
 * Samples can be navigated by a menu supporting nested items
 * No backend is needed
 
-To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/)
+To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/). Some samples used in this demo comes from [webglsamples](https://github.com/webglsamples/webglsamples.github.io).
 
 ## Installation
 ```
@@ -28,8 +28,8 @@ Create a project folder and craft a project file [codestage.toml](https://github
 title = "CodeStage example"
 # Github repo link (optional)
 github = "xxx"
-# If not deployed under the root directory, this will be needed (optional)
-prefix = "demo"
+# If not deployed under the root directory, this will be needed. The first slash is required. (optional)
+prefix = "/codestage"
 # specify the output folder (optional)
 target = "dist"
 # Utility folders are shared by all samples in the project.
