@@ -115,9 +115,19 @@ codestage --target <target_folder>
 
 The static site is generated under <target_folder>
 
-If the site will be deployed to a subpath of a domain, indead of the root, for example: `https://example.com/my_samples`, We need to specify the path prefix (`my_sample`). This can be done with either the commandline argument `--prefix` or the `codestage.toml` file.
+If the site will be deployed to a subpath of a domain, indead of the root, for example: `https://example.com/my_samples`, We need to specify the path prefix (`/my_sample`). This can be done with either the commandline argument `--prefix` or the `codestage.toml` file.
 
 The commandline options have higher priority than the toml file. If you want to do any adhoc changes, you can use the commandline.
+
+The `example_project` folder is an example project. To build the it:
+
+```bash
+cd example_project
+
+codestage
+```
+
+The generated site will be under `example_project/dist`
 
 ## Build
 ```
