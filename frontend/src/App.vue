@@ -209,7 +209,7 @@ export default {
           return r;
         }
       }
-      return null;
+      return '';
     },
     fetchContent: async function () {
       let manifest = await fetch("{{_codestage_prefix_}}/manifest.json");
@@ -268,7 +268,7 @@ export default {
     },
     onRun: async function () {
       const filePath = this.currentFolder.folder + '/index.html';
-      const model = await this.fetchFileByPath(filePath);
+      const model = await this.fetchFileByPath(path);
       const html_string = model.getValue();
 
       let newHTMLDocument =

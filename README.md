@@ -6,6 +6,12 @@ CodeStage is a static site generator to generate javascript playground. I implem
 
 All these sites seem to build their own solution. CodeStage, on the other hand, is a free and reusable solution.
 
+### Key features
+
+* mutable code samples, easy to conduct experiments on
+* samples can be navigated by a menu supporting nested menu items
+* no backend is need
+
 To see a demo of a deployed CodeStage site: [WebGPUTutorial](https://shi-yan.github.io/WebGPUTutorial/?sample=test_base)
 
 ## Installation
@@ -26,6 +32,8 @@ github = "xxx"
 prefix = "demo"
 # specify the output folder (optional)
 target = "dist"
+# Utility folders are shared by all samples in the project.
+utilities = [ "utility_folder_1",  "utility_folder_2" ]
 
 # The following is the table of content
 # The content field is an array of chapters
@@ -63,9 +71,6 @@ folder = "test_base"
 [[content.files]]
 filename = "index.html"
 is_readonly = true
-
-# Utility folders are shared by all samples in the project.
-utilities = [ "utility_folder_1",  "utility_folder_2" ]
 
 ```
 
@@ -119,6 +124,12 @@ cargo build --release
 ```
 
 ## Implementation details
-When we build a CodeStage project, we validate the `codestage.toml` file, copy all sample, utility folders
-The editor is built using [Monaco](https://github.com/shi-yan/codestage), 
+When we build a CodeStage project, we validate the `codestage.toml` file, copy all sample and utility folders to the target folder. We then generate a json file called `manifest.json`, which contains the menu structure for the project. We also output the frontend code into the target folder. When the project is loaded into browser, we fetch the manifest file first to populate the menu structure. When a chapter is clicked, we load the corresponding `files` as defined in the `codestage.toml` file into the editor. A user can freely update the code using the editor. When the `run` button is clicked, we use the following mechanism to assemble the program:
+
+1. We first crate a dom tree using the index.html file.
+2. We scan for all script tags. For all script tags that have the `src` attribute matches a modified js file, we will replace their `textContent` with the modified code.
+3. Finally we inject a `base` tag into the document, so that we will use the sample's folder as the root.
+4. The dom tree assembled above will be stuffed into an iframe for execution.
+
+The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
