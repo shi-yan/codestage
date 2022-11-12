@@ -18,7 +18,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.4
+cargo install codestage --version 0.1.0-alpha.5
 ```
 
 ## Usage
