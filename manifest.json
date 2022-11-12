@@ -85,6 +85,16 @@
           "is_readonly": true
         }
       ]
+    },
+    {
+      "folder": "spacerocks",
+      "title": "3. Spacerocks",
+      "files": [
+        {
+          "filename": "index.html",
+          "is_readonly": true
+        }
+      ]
     }
   ]
 }
