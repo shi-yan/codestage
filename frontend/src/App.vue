@@ -335,11 +335,17 @@ export default {
       let exisiting = newHTMLDocument.head.getElementsByTagName("base");
       if (exisiting.length > 0) {
         for (let e = 0; e < exisiting.length; ++e) {
-          exisiting[e].setAttribute("href", this.currentFolder.folder + "/");
+          exisiting[e].setAttribute(
+            "href",
+            "{{_codestage_prefix_}}/" + this.currentFolder.folder + "/"
+          );
         }
       } else {
         let base = document.createElement("base");
-        base.setAttribute("href", this.currentFolder.folder + "/");
+        base.setAttribute(
+          "href",
+          "{{_codestage_prefix_}}/" + this.currentFolder.folder + "/"
+        );
         newHTMLDocument.head.appendChild(base);
       }
 
