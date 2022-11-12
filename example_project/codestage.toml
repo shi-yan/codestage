@@ -66,3 +66,11 @@ is_readonly = true
 [[content.files]]
 filename = "voronoi.js"
 is_readonly = true
+
+[[content]]
+title = "4. Spacerocks"
+folder = "spacerocks"
+
+[[content.files]]
+filename = "index.html"
+is_readonly = true

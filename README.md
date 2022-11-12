@@ -134,6 +134,5 @@ When we build a CodeStage project, we validate the `codestage.toml` file, copy a
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
 ## Todo
-better samples []
 css prefix []
 readonly []
