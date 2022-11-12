@@ -4,8 +4,8 @@
   "target": "dist",
   "title": "CodeStage example",
   "utilities": [
-    "basic_sample",
-    "basic_sample"
+    "khronos",
+    "tdl"
   ],
   "content": [
     {
@@ -51,11 +51,19 @@
       ]
     },
     {
-      "folder": "basic_sample",
-      "title": "chapter 2",
+      "folder": "electricflower",
+      "title": "2. Electric Flower",
       "files": [
         {
           "filename": "index.html",
+          "is_readonly": true
+        },
+        {
+          "filename": "flower.js",
+          "is_readonly": true
+        },
+        {
+          "filename": "postprocess.js",
           "is_readonly": true
         }
       ]
