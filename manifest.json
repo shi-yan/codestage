@@ -1,6 +1,6 @@
 {
-  "github": "https://github.com/shi-yan/codestage",
   "prefix": "/codestage",
+  "repo": "https://github.com/shi-yan/codestage",
   "target": "dist",
   "title": "CodeStage example",
   "utilities": [
@@ -88,7 +88,7 @@
     },
     {
       "folder": "spacerocks",
-      "title": "4. Spacerocks",
+      "title": "4. Space Rocks",
       "files": [
         {
           "filename": "index.html",
