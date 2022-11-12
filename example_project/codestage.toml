@@ -2,6 +2,7 @@ title = "CodeStage example"
 github = "xxx"
 prefix = "demo"
 target = "dist"
+utilities = [ "utility_folder_1",  "utility_folder_2" ]
 
 [[content]]
 title = "chapter 1"
