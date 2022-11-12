@@ -50,3 +50,19 @@ is_readonly = true
 [[content.files]]
 filename = "postprocess.js"
 is_readonly = true
+
+[[content]]
+title = "3. Halo"
+folder = "halo"
+
+[[content.files]]
+filename = "index.html"
+is_readonly = true
+
+[[content.files]]
+filename = "halo.js"
+is_readonly = true
+
+[[content.files]]
+filename = "voronoi.js"
+is_readonly = true
