@@ -8,11 +8,11 @@ All these sites seem to build their own solution. CodeStage, on the other hand, 
 
 ### Key features
 
-* mutable code samples, easy to conduct experiments on
-* samples can be navigated by a menu supporting nested menu items
-* no backend is need
+* Mutable code samples, easy to conduct experiments on
+* Samples can be navigated by a menu supporting nested items
+* No backend is needed
 
-To see a demo of a deployed CodeStage site: [WebGPUTutorial](https://shi-yan.github.io/WebGPUTutorial/?sample=test_base)
+To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/)
 
 ## Installation
 ```
@@ -133,3 +133,7 @@ When we build a CodeStage project, we validate the `codestage.toml` file, copy a
 
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
+## Todo
+better samples []
+css prefix []
+readonly []

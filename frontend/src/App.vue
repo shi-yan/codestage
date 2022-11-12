@@ -222,7 +222,7 @@ export default {
       }
 
       for (let n of this.content.content) {
-        const r = helper();
+        const r = helper(n);
         if (r !== null) {
           return r;
         }
@@ -306,7 +306,7 @@ export default {
     },
     onRun: async function () {
       const filePath = this.currentFolder.folder + "/index.html";
-      const model = await this.fetchFileByPath(path);
+      const model = await this.fetchFileByPath(filePath);
       const html_string = model.getValue();
 
       let newHTMLDocument =
