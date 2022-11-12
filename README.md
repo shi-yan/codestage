@@ -53,6 +53,7 @@ is_readonly = true
 [[content.sub_chapters]]
 title = "chapter 1.1"
 folder = "test_base"
+
 [[content.sub_chapters.files]]
 filename = "index.html"
 is_readonly = true
@@ -61,6 +62,7 @@ is_readonly = true
 [[content.sub_chapters.sub_chapters]]
 title = "chapter 1.1.1"
 folder = "test_base"
+
 [[content.sub_chapters.sub_chapters.files]]
 filename = "index.html"
 is_readonly = true
@@ -68,6 +70,7 @@ is_readonly = true
 [[content]]
 title = "chapter 2"
 folder = "test_base"
+
 [[content.files]]
 filename = "index.html"
 is_readonly = true
