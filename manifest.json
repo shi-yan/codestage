@@ -1,0 +1,64 @@
+{
+  "github": "https://github.com/shi-yan/codestage",
+  "prefix": "demo",
+  "target": "dist",
+  "title": "CodeStage example",
+  "utilities": [
+    "basic_sample",
+    "basic_sample"
+  ],
+  "content": [
+    {
+      "folder": "basic_sample",
+      "title": "1. Basic Sample",
+      "files": [
+        {
+          "filename": "index.html",
+          "is_readonly": true
+        },
+        {
+          "filename": "test.js",
+          "is_readonly": true
+        },
+        {
+          "filename": "test.glsl",
+          "is_readonly": true
+        }
+      ],
+      "sub_chapters": [
+        {
+          "folder": "basic_sample",
+          "title": "1.1 Nested Basic Sample",
+          "files": [
+            {
+              "filename": "index.html",
+              "is_readonly": true
+            }
+          ],
+          "sub_chapters": [
+            {
+              "folder": "basic_sample",
+              "title": "1.1.1 Nested Basic Sample",
+              "files": [
+                {
+                  "filename": "index.html",
+                  "is_readonly": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "folder": "basic_sample",
+      "title": "chapter 2",
+      "files": [
+        {
+          "filename": "index.html",
+          "is_readonly": true
+        }
+      ]
+    }
+  ]
+}
