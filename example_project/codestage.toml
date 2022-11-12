@@ -3,7 +3,7 @@ github = "https://github.com/shi-yan/codestage"
 # need to have the slash
 prefix = "/codestage"
 target = "dist"
-utilities = [ "basic_sample",  "basic_sample" ]
+utilities = [ "khronos",  "tdl" ]
 
 [[content]]
 title = "1. Basic Sample"
