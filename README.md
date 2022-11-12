@@ -1,5 +1,7 @@
 https://user-images.githubusercontent.com/326807/201398785-5eaf402e-ee41-46c4-bb7b-5ccc6a9861db.mp4
 
+ [![crates.io](https://img.shields.io/crates/v/codestage.svg)](https://crates.io/crates/codestage)
+
 CodeStage is a static site generator to generate javascript playground. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
 
 [Monaco](https://microsoft.github.io/monaco-editor/playground.html) | [WebGPU samples](https://austin-eng.com/webgpu-samples) | [Bauble](https://bauble.studio) | [Goplay](https://goplay.space)
@@ -16,7 +18,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage
+cargo install codestage --version 0.1.0-alpha.3
 ```
 
 ## Usage
@@ -138,4 +140,5 @@ The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
 ## Todo
 css prefix []
+
 readonly []
