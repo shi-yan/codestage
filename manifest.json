@@ -13,20 +13,16 @@
       "title": "1. Basic Sample",
       "files": [
         {
-          "filename": "index.html",
-          "is_readonly": true
+          "filename": "index.html"
         },
         {
-          "filename": "test.css",
-          "is_readonly": true
+          "filename": "test.css"
         },
         {
-          "filename": "test.js",
-          "is_readonly": true
+          "filename": "test.js"
         },
         {
-          "filename": "test.glsl",
-          "is_readonly": true
+          "filename": "test.glsl"
         }
       ],
       "sub_chapters": [
@@ -59,12 +55,10 @@
       "title": "2. Electric Flower",
       "files": [
         {
-          "filename": "index.html",
-          "is_readonly": true
+          "filename": "index.html"
         },
         {
-          "filename": "flower.js",
-          "is_readonly": true
+          "filename": "flower.js"
         },
         {
           "filename": "postprocess.js",
@@ -77,12 +71,10 @@
       "title": "3. Halo",
       "files": [
         {
-          "filename": "index.html",
-          "is_readonly": true
+          "filename": "index.html"
         },
         {
-          "filename": "halo.js",
-          "is_readonly": true
+          "filename": "halo.js"
         },
         {
           "filename": "voronoi.js",
@@ -95,8 +87,7 @@
       "title": "4. Space Rocks",
       "files": [
         {
-          "filename": "index.html",
-          "is_readonly": true
+          "filename": "index.html"
         }
       ]
     }
