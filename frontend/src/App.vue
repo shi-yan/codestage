@@ -324,7 +324,7 @@ export default {
         if (href) {
           for (let f of this.currentFolder.files) {
             if (f.filename === href) {
-              const path = this.currentFolder.folder + "/" + src;
+              const path = this.currentFolder.folder + "/" + href;
               
               const model = await this.fetchFileByPath(path);
               const style_string = model.getValue();
