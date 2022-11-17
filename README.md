@@ -18,7 +18,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.5
+cargo install codestage --version 0.1.0-alpha.6
 ```
 
 ## Usage
@@ -139,12 +139,13 @@ cargo build --release
 ```
 
 ## Implementation details
-When we build a CodeStage project, we validate the `codestage.toml` file, copy all sample and utility folders to the target folder. We then generate a json file called `manifest.json`, which contains the menu structure for the project. We also output the frontend code into the target folder. When the project is loaded into browser, we fetch the manifest file first to populate the menu structure. When a chapter is clicked, we load the corresponding `files` as defined in the `codestage.toml` file into the editor. A user can freely update the code using the editor. When the `run` button is clicked, we use the following mechanism to assemble the program:
+When we build a CodeStage project, we first validate the `codestage.toml` file, copy all sample and utility folders to the target folder. We then generate a json file called `manifest.json`, which contains the menu structure for the project. We also output the frontend code into the target folder. When the project is loaded into browser, we fetch the manifest file first to populate the menu structure. When a chapter is clicked, we load the corresponding `files` as defined in the `codestage.toml` file into the editor. A user can freely update the code using the editor. When the `run` button is clicked, we use the following mechanism to assemble the program:
 
-1. We first crate a dom tree using the index.html file.
-2. We scan for all script tags. For all script tags that have the `src` attribute matches a modified js file, we will replace their `textContent` with the modified code.
-3. Finally we inject a `base` tag into the document, so that we will use the sample's folder as the root.
-4. The dom tree assembled above will be stuffed into an iframe for execution.
+1. We first create a dom tree using the index.html file.
+2. We scan for all link tags. For all link tags that have the `href` attribute matching a modified css file, we will replace their `textContent` with the modified code.
+3. We scan for all script tags. For all script tags that have the `src` attribute matching a modified js file, we will replace their `textContent` with the modified code.
+4. Finally we inject a `base` tag into the document, so that we will use the sample's folder as the root.
+5. The dom tree assembled above will be stuffed into an iframe for execution.
 
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
