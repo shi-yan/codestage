@@ -17,6 +17,10 @@
           "is_readonly": true
         },
         {
+          "filename": "test.css",
+          "is_readonly": true
+        },
+        {
           "filename": "test.js",
           "is_readonly": true
         },
