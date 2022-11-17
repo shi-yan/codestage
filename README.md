@@ -2,7 +2,7 @@ https://user-images.githubusercontent.com/326807/201398785-5eaf402e-ee41-46c4-bb
 
  [![crates.io](https://img.shields.io/crates/v/codestage.svg)](https://crates.io/crates/codestage)
 
-CodeStage is a static site generator to generate javascript playground. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
+CodeStage is a static site generator to create javascript playgrounds. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
 
 [Monaco](https://microsoft.github.io/monaco-editor/playground.html) | [WebGPU samples](https://austin-eng.com/webgpu-samples) | [Bauble](https://bauble.studio) | [Goplay](https://goplay.space)
 
@@ -14,7 +14,7 @@ All these sites seem to build their own solution. CodeStage, on the other hand, 
 * Samples can be navigated by a menu supporting nested items
 * No backend is needed
 
-To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/). Some samples used in this demo comes from [webglsamples](https://github.com/webglsamples/webglsamples.github.io).
+To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/). Some samples used in this demo come from [webglsamples](https://github.com/webglsamples/webglsamples.github.io).
 
 ## Installation
 ```
@@ -23,7 +23,7 @@ cargo install codestage --version 0.1.0-alpha.6
 
 ## Usage
 
-Create a project folder and craft a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
+Create a project folder and a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
 
 ```toml
 # Title of the project (must have)
