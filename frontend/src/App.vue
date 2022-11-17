@@ -37,7 +37,11 @@
         <span class="tab-button-text">{{ f.filename }}</span>
       </button>
       <div style="flex-grow: 1"></div>
-      <button v-if="content.repo" @click="openRepo(content.repo);" class="tab-button">
+      <button
+        v-if="content.repo"
+        @click="openRepo(content.repo)"
+        class="tab-button"
+      >
         <git-icon style="vertical-align: middle"></git-icon>
         <span class="tab-button-text">REPO</span>
       </button>
@@ -204,8 +208,8 @@ export default {
     });
   },
   methods: {
-    openRepo: function(url) {
-      window.open(url, '_blank');
+    openRepo: function (url) {
+      window.open(url, "_blank");
     },
     getFirstFolderDetails: function () {
       function helper(node) {
@@ -304,6 +308,11 @@ export default {
       const filePath = this.currentFolder.folder + "/" + f.filename;
       const model = await this.fetchFileByPath(filePath);
       editor.setModel(model);
+      if (f.is_readonly == true) {
+        editor.updateOptions({ readOnly: true });
+      } else {
+        editor.updateOptions({ readOnly: false });
+      }
 
       document.title = this.currentFolder.title + " - " + f.filename;
     },
@@ -318,19 +327,19 @@ export default {
 
       let styleTags = newHTMLDocument.getElementsByTagName("link");
 
-      for(let t = 0; t < styleTags.length; ++t) {
+      for (let t = 0; t < styleTags.length; ++t) {
         const href = styleTags[t].getAttribute("href");
 
         if (href) {
           for (let f of this.currentFolder.files) {
             if (f.filename === href) {
               const path = this.currentFolder.folder + "/" + href;
-              
+
               const model = await this.fetchFileByPath(path);
               const style_string = model.getValue();
 
               styleTags[t].remove();
-              const styleTag = newHTMLDocument.createElement('style');
+              const styleTag = newHTMLDocument.createElement("style");
 
               styleTag.textContent = style_string;
               newHTMLDocument.head.appendChild(styleTag);

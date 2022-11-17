@@ -148,8 +148,3 @@ When we build a CodeStage project, we first validate the `codestage.toml` file, 
 5. The dom tree assembled above will be stuffed into an iframe for execution.
 
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
-
-## Todo
-css prefix []
-
-readonly []
