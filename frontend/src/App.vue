@@ -316,6 +316,30 @@ export default {
         document.implementation.createHTMLDocument("preview");
       newHTMLDocument.documentElement.innerHTML = html_string;
 
+      let styleTags = newHTMLDocument.getElementsByTagName("link");
+
+      for(let t = 0; t < styleTags.length; ++t) {
+        const href = styleTags[t].getAttribute("href");
+
+        if (href) {
+          for (let f of this.currentFolder.files) {
+            if (f.filename === href) {
+              const path = this.currentFolder.folder + "/" + src;
+              
+              const model = await this.fetchFileByPath(path);
+              const style_string = model.getValue();
+
+              styleTags[t].remove();
+              const styleTag = newHTMLDocument.createElement('style');
+
+              styleTag.textContent = style_string;
+              newHTMLDocument.head.appendChild(styleTag);
+              break;
+            }
+          }
+        }
+      }
+
       //overwrite scripts
       let scriptTags = newHTMLDocument.getElementsByTagName("script");
       for (let t = 0; t < scriptTags.length; ++t) {
