@@ -2,7 +2,7 @@ https://user-images.githubusercontent.com/326807/201398785-5eaf402e-ee41-46c4-bb
 
  [![crates.io](https://img.shields.io/crates/v/codestage.svg)](https://crates.io/crates/codestage)
 
-CodeStage is a static site generator to generate javascript playground. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
+CodeStage is a static site generator to create javascript playgrounds. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage is inspired by the following sites:
 
 [Monaco](https://microsoft.github.io/monaco-editor/playground.html) | [WebGPU samples](https://austin-eng.com/webgpu-samples) | [Bauble](https://bauble.studio) | [Goplay](https://goplay.space)
 
@@ -14,25 +14,25 @@ All these sites seem to build their own solution. CodeStage, on the other hand, 
 * Samples can be navigated by a menu supporting nested items
 * No backend is needed
 
-To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/). Some samples used in this demo comes from [webglsamples](https://github.com/webglsamples/webglsamples.github.io).
+To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/codestage/). Some samples used in this demo come from [webglsamples](https://github.com/webglsamples/webglsamples.github.io).
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.6
+cargo install codestage --version 0.1.0-alpha.7
 ```
 
 ## Usage
 
-Create a project folder and craft a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
+Create a project folder and a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
 
 ```toml
-# Title of the project (must have)
+# Title of the project (must have).
 title = "CodeStage example"
-# Link to the repository (optional)
+# Link to the repository (optional).
 repo = "xxx"
-# If not deployed under the root directory, this will be needed. The first slash is required. (optional)
+# If not deployed under the root directory, this will be needed. The first slash is required (optional).
 prefix = "/codestage"
-# specify the output folder (optional)
+# specify the output folder (optional).
 target = "dist"
 # Utility folders are shared by all samples in the project.
 utilities = [ "utility_folder_1",  "utility_folder_2" ]
@@ -46,7 +46,7 @@ title = "chapter 1"
 folder = "test_base"
 
 # A list of files we want to load into the editor. All files in the above folder will be deployed, but only these files in that folder will be loaded into the editor.
-# The "is_readonly" option is not yet implemented. It will make a file immutable.
+# is_readonly will make a file immutable (optional).
 [[content.files]]
 filename = "index.html"
 is_readonly = true
@@ -58,7 +58,6 @@ folder = "test_base"
 
 [[content.sub_chapters.files]]
 filename = "index.html"
-is_readonly = true
 
 # Another level of nested chapter
 [[content.sub_chapters.sub_chapters]]
@@ -67,7 +66,6 @@ folder = "test_base"
 
 [[content.sub_chapters.sub_chapters.files]]
 filename = "index.html"
-is_readonly = true
 
 [[content]]
 title = "chapter 2"
@@ -148,3 +146,9 @@ When we build a CodeStage project, we first validate the `codestage.toml` file, 
 5. The dom tree assembled above will be stuffed into an iframe for execution.
 
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
+
+## Todo
+
+meta tags []
+
+hashtag link []
