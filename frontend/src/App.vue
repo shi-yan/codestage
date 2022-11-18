@@ -299,9 +299,14 @@ export default {
     onLoadFile: async function (e, f) {
       for (let re of this.fileRefs) {
         if (re.getAttribute("filename") === f.filename) {
-          re.classList.add("active");
+          if (f.is_readonly == true) {
+            re.classList.add("readonly");
+          } else {
+            re.classList.add("active");
+          }
         } else {
           re.classList.remove("active");
+          re.classList.remove("readonly");
         }
       }
 
@@ -515,6 +520,14 @@ html {
   border-bottom-width: 4px;
   border-style: solid;
   border-color: #4631c5;
+  cursor: default;
+  color: #ffffff;
+}
+
+.tab-button.readonly {
+  border-bottom-width: 4px;
+  border-style: solid;
+  border-color: #9b304c;
   cursor: default;
   color: #ffffff;
 }
