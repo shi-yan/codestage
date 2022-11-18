@@ -1,5 +1,9 @@
 <template>
-  <div style="width: 100%; display: flex; flex-direction: column">
+  <div v-if="isMobile()" class="mobile">
+    <img src="../assets/logo2.png" style="width:100vw" />
+    <p>Only desktop browsers are supported.</p>
+  </div>
+  <div v-else style="width: 100%; display: flex; flex-direction: column">
     <div ref="menu" class="menu">
       <h2 class="menu-title">{{ content.title }}</h2>
       <div class="menu-content">
@@ -94,6 +98,10 @@ export default {
     this.eventBus.off("load");
   },
   mounted: async function () {
+    if (this.isMobile()) {
+      return;
+    }
+
     this.content = await this.fetchContent();
     document.title = this.content.title;
 
@@ -407,6 +415,13 @@ export default {
       iframe.style.width = outputRect.width + "px";
       iframe.style.height = outputRect.height + "px";
     },
+    isMobile() {
+      if (screen.width <= 760) {
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
 };
 </script>
@@ -588,5 +603,14 @@ ul {
 
 li {
   margin: 0px;
+}
+
+.mobile {
+  background-color: black;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>

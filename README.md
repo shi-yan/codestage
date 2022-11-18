@@ -20,7 +20,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.8
+cargo install codestage --version 0.1.0-alpha.9
 ```
 
 ## Usage
@@ -157,6 +157,3 @@ When we build a CodeStage project, we first validate the `codestage.toml` file, 
 
 The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
-## Todo
-
-mobile []
