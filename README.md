@@ -87,7 +87,7 @@ is_readonly = true
 
 ```
 
-Each indivisual sample should be in a separate folder. Under each folder, there must be an `index.html` file. This will be the entrypoint for this sample. When a user clicks the run button, we will load and display this `index.html` file.
+Each indivisual sample should be in a separate folder. Under each folder, there must be an `index.html` file. This will be the entrypoint for the sample. When a user clicks the run button, we will load and display this `index.html` file.
 
 There can be a utility folder housing the common files that are shared by all samples.
 
