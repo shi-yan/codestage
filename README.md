@@ -130,7 +130,7 @@ The commandline options have higher priority than the toml file. If you want to 
 
 ## Example
 
-The `example_project` folder contains an example project. To build it:
+The [example_project](https://github.com/shi-yan/codestage/tree/master/example_project) folder contains an example project. To build it:
 
 ```bash
 cd example_project
