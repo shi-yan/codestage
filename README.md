@@ -18,7 +18,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.0-alpha.7
+cargo install codestage --version 0.1.0-alpha.8
 ```
 
 ## Usage
@@ -32,9 +32,16 @@ title = "CodeStage example"
 repo = "xxx"
 # If not deployed under the root directory, this will be needed. The first slash is required (optional).
 prefix = "/codestage"
-# specify the output folder (optional).
+# Specify the output folder (optional).
 target = "dist"
-# Utility folders are shared by all samples in the project.
+# Link to the deployed site, this will be used for meta tags (optional).
+url = "https://shi-yan.github.io/codestage/"
+# Image used for meta tags (optional).
+meta_image = "meta.png"
+# Description used for meta tags (optional).
+description = """
+CodeStage is a static site generator to build JS playground demos."""
+# Utility folders are shared by all samples in the project (optional).
 utilities = [ "utility_folder_1",  "utility_folder_2" ]
 
 # The following is the table of content
@@ -100,6 +107,7 @@ my-codestage-project/
 ├─ utility_folder_2/
 │  ├─ test.png
 ├─ codestage.toml
+├─ meta_image.png
 ├─ README.md
 ```
 
@@ -149,6 +157,4 @@ The editor is built using [Monaco](https://github.com/shi-yan/codestage).
 
 ## Todo
 
-meta tags []
-
-hashtag link []
+mobile []

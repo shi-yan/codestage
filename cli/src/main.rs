@@ -55,11 +55,13 @@ fn verify_chapter(
                     //println!("{}", process_info.total_bytes);
                     fs_extra::dir::TransitProcessResult::ContinueOrAbort
                 };
-                match fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle)
-                {
+                match fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle) {
                     Ok(_r) => {}
                     Err(e) => {
-                        println!("Warning: Can't copy folder {} to {}. {}", &folder_str, &target, &e);
+                        println!(
+                            "Warning: Can't copy folder {} to {}. {}",
+                            &folder_str, &target, &e
+                        );
                     }
                 }
             } else {
@@ -117,8 +119,34 @@ fn verify_chapter(
     return true;
 }
 
-fn fetch_filecontent(path: &PathBuf, f: &EmbeddedFile, prefix_str: &str) -> Vec<u8> {
+fn fetch_filecontent(
+    path: &PathBuf,
+    f: &EmbeddedFile,
+    title: &str,
+    version: &str,
+    url: &str,
+    description: &str,
+    meta_image: &str,
+    prefix_str: &str,
+) -> Vec<u8> {
     if let Some(ext) = path.extension() {
+        if let Some(filename) = path.file_name() {
+            if filename == "index.html" {
+                let content = String::from_utf8_lossy(&f.data);
+
+                let mut rendered = content.replace("{{_codestage_title_}}", title);
+                rendered = rendered.replace("{{_codestage_description_}}", description);
+                rendered = rendered.replace("{{_codestage_meta_image_}}", meta_image);
+                rendered = rendered.replace("{{_codestage_url_}}", url);
+                rendered = rendered.replace("{{_codestage_version_}}", version);
+
+                if let Some(_) = content.find("{{_codestage_prefix_}}") {
+                    rendered = rendered.replace("{{_codestage_prefix_}}", prefix_str);
+                }
+                return rendered.as_bytes().to_vec();
+            }
+        }
+        
         if ext == "html" || ext == "js" {
             let content = String::from_utf8_lossy(&f.data);
 
@@ -142,6 +170,7 @@ fn main() {
   \\____/\\___/ \\__,_|\\___| \\__/\\__\\__,_|\\__, |\\___|
                                        |___/      "
     );
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
 
     let contents =
         fs::read_to_string(args.manifest).expect("Should have been able to read the file");
@@ -189,6 +218,70 @@ fn main() {
             )
         };
 
+        let meta_image = if global.contains_key("meta_image") {
+            let mut meta_image = String::new();
+            if let Some(meta_image_value) = global.get("meta_image") {
+                if let toml::Value::String(meta_image_str) = meta_image_value {
+                    let meta_image_exists = Path::new(&meta_image_str).exists();
+
+                    if meta_image_exists {
+                        let mut options = CopyOptions::new();
+                        options.overwrite = true;
+                        match fs_extra::copy_items(&[meta_image_str], &target_folder, &options) {
+                            Ok(_r) => {
+                                meta_image = meta_image_str.clone();
+                            }
+                            Err(e) => {
+                                println!(
+                                    "Warning: Can't copy folder {} to {}. {}",
+                                    &meta_image_str, &target_folder, &e
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            meta_image
+        } else {
+            String::new()
+        };
+
+        let title = if global.contains_key("title") {
+            let mut title = String::new();
+            if let Some(title_value) = global.get("title") {
+                if let toml::Value::String(title_str) = title_value {
+                    title = title_str.clone();
+                }
+            }
+            title
+        } else {
+            String::new()
+        };
+
+        let description = if global.contains_key("description") {
+            let mut description = String::new();
+            if let Some(description_value) = global.get("description") {
+                if let toml::Value::String(description_str) = description_value {
+                    description = description_str.clone();
+                }
+            }
+            description
+        } else {
+            String::new()
+        };
+
+        let url = if global.contains_key("url") {
+            let mut url = String::new();
+            if let Some(url_value) = global.get("url") {
+                if let toml::Value::String(url_str) = url_value {
+                    url = url_str.clone();
+                }
+            }
+            url
+        } else {
+            String::new()
+        };
+
         for file in Asset::iter() {
             println!("{}/{}", &target_folder, file.as_ref());
 
@@ -198,7 +291,16 @@ fn main() {
 
             let f = Asset::get(file.as_ref()).unwrap();
 
-            let data: Vec<u8> = fetch_filecontent(&path, &f, &prefix_str);
+            let data: Vec<u8> = fetch_filecontent(
+                &path,
+                &f,
+                &title,
+                VERSION,
+                &url,
+                &description,
+                &meta_image,
+                &prefix_str,
+            );
 
             if let Err(e) = fs::write(&path, &data) {
                 println!("{:?}", e.kind());
@@ -236,18 +338,25 @@ fn main() {
                         let handle = |_process_info: TransitProcess| {
                             fs_extra::dir::TransitProcessResult::ContinueOrAbort
                         };
-                        match fs_extra::copy_items_with_progress(&[u_str], &target_folder, &options, handle)
-                        {
+                        match fs_extra::copy_items_with_progress(
+                            &[u_str],
+                            &target_folder,
+                            &options,
+                            handle,
+                        ) {
                             Ok(_r) => {}
                             Err(e) => {
-                                println!("Warning: Can't copy folder {} to {}. {}", &u_str, &target_folder, &e);
+                                println!(
+                                    "Warning: Can't copy folder {} to {}. {}",
+                                    &u_str, &target_folder, &e
+                                );
                             }
                         }
                     }
                 }
             }
         }
-        
+
         let content = match global.get("content") {
             None => {
                 println!("Warning: No content detected.");

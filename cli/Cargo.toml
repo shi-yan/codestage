@@ -1,6 +1,6 @@
 [package]
 name = "codestage"
-version = "0.1.0-alpha.7"
+version = "0.1.0-alpha.8"
 edition = "2021"
 authors = ["Shi Yan <billconan@gmail.com>"]
 license = "MIT OR Apache-2.0"

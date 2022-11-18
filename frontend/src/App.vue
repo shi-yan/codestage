@@ -97,11 +97,12 @@ export default {
     this.content = await this.fetchContent();
     document.title = this.content.title;
 
-    const queryString = window.location.search;
-
-    const urlParams = new URLSearchParams(queryString);
-
-    const folder = urlParams.get("sample");
+    let folder = window.location.hash;
+    if (folder.length > 0) {
+      folder = folder.substring(1);
+    } else {
+      folder = null;
+    }
 
     this.currentFolder =
       (folder && this.getDetailsByFolder(folder)) ||
@@ -269,7 +270,9 @@ export default {
     onLoadSample: function (e) {
       console.log(e);
       this.$refs["menu"].classList.remove("slide");
-      window.location = "{{_codestage_prefix_}}/?sample=" + e.folder;
+      window.location.href = "{{_codestage_prefix_}}";
+      window.location.hash = "#" + e.folder;
+      window.location.reload();
     },
     onMenuButtonClicked: function () {
       if (this.isMenuOpen) {
