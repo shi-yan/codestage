@@ -1,6 +1,6 @@
 {
   "description": "CodeStage is a static site generator to build JS playground demos.",
-  "hero_image": "meta.png",
+  "meta_image": "meta.png",
   "prefix": "/codestage",
   "repo": "https://github.com/shi-yan/codestage",
   "target": "dist",
