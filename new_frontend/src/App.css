@@ -1,0 +1,131 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.solid:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.Menu {
+  width: 320px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: -320px;
+  background-color: white;
+  z-index: 100;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  display: flex;
+  flex-direction: column;
+  background-color: #0e0b33;
+}
+
+.MenuTitle {
+  margin-top: 40px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.MenuContent {
+  flex-grow: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 10px;
+  margin-left: 10px;
+}
+
+
+.ToolBar {
+  flex-grow: 0;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: row;
+  height: 40px;
+  padding-right: 10px;
+}
+
+.TabButton {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  color: #9492b1;
+  cursor: pointer;
+}
+
+.TabButton:hover {
+  color: #ffffff;
+}
+
+.tab-button-text {
+  margin-left: 8px;
+  font-family: "Source Code Pro", monospace;
+}
+
+.TabButton.active {
+  border-bottom-width: 4px;
+  border-style: solid;
+  border-color: #4631c5;
+  cursor: default;
+  color: #ffffff;
+}
+
+.TabButton.readonly {
+  border-bottom-width: 4px;
+  border-style: solid;
+  border-color: #9b304c;
+  cursor: default;
+  color: #ffffff;
+}
+
+.Main {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.Editor {
+  display: block;
+  width: 50%;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2b284b;
+  background-color: #1a183d;
+}
+
+.Output {
+  overflow: hidden;
+  width: 50%;
+}
+
+.Sandbox {
+  position: absolute;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #2b284b;
+  background-color: #1a183d;
+}
