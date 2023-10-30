@@ -1,7 +1,8 @@
 import { createSignal, onMount, For } from 'solid-js'
 import styles from './App.css'
 import MenuItem from './MenuItem';
-import theme from "./CodeStage.json";
+import theme from "./assets/CodeStage.json";
+import logo from "./assets/logo2.png";
 
 function App() {
   function isMobile() {
@@ -41,7 +42,7 @@ function App() {
 
   async function onRun() {
     const filePath = currentFolder.folder + "/index.html";
-    const model = await this.fetchFileByPath(filePath);
+    const model = await fetchFileByPath(filePath);
     const html_string = model.getValue();
 
     let newHTMLDocument =
@@ -58,7 +59,7 @@ function App() {
           if (f.filename === href) {
             const path = currentFolder.folder + "/" + href;
 
-            const model = await this.fetchFileByPath(path);
+            const model = await fetchFileByPath(path);
             const style_string = model.getValue();
 
             styleTags[t].remove();
@@ -82,7 +83,7 @@ function App() {
           if (f.filename === src) {
             const path = currentFolder.folder + "/" + src;
             scriptTags[t].removeAttribute("src");
-            const model = await this.fetchFileByPath(path);
+            const model = await fetchFileByPath(path);
             const script_string = model.getValue();
             scriptTags[t].textContent = script_string;
             break;
@@ -108,9 +109,9 @@ function App() {
       newHTMLDocument.head.appendChild(base);
     }
 
-    let iframeDoc = this.$refs["outputWindow"].contentDocument;
+    let iframeDoc = outputWindow.contentDocument;
     iframeDoc.removeChild(iframeDoc.documentElement);
-    this.$refs["outputWindow"].srcdoc =
+    outputWindow.srcdoc =
       newHTMLDocument.documentElement.innerHTML;
   }
 
@@ -198,7 +199,7 @@ function App() {
   }
 
   async function onLoadFile(e, f) {
-    for (let re of this.fileRefs) {
+    for (let re of fileRefs) {
       if (re.getAttribute("filename") === f.filename) {
         if (f.is_readonly == true) {
           re.classList.add("readonly");
@@ -212,7 +213,7 @@ function App() {
     }
 
     const filePath = currentFolder.folder + "/" + f.filename;
-    const model = await this.fetchFileByPath(filePath);
+    const model = await fetchFileByPath(filePath);
     editor.setModel(model);
     if (f.is_readonly == true) {
       editor.updateOptions({ readOnly: true });
@@ -237,7 +238,7 @@ function App() {
       return;
     }
 
-    setContent( await fetchContent());
+    setContent(await fetchContent());
     document.title = content().title;
 
     let folder = window.location.hash;
@@ -252,7 +253,7 @@ function App() {
       getFirstFolderDetails();
 
     if (currentFolder !== null) {
-      setFiles([...this.currentFolder.files]);
+      setFiles([...currentFolder.files]);
     }
 
     /*this.eventBus.on("load", (e) => {
@@ -260,89 +261,89 @@ function App() {
     });*/
 
 
-      let mouseX = 0;
-      let panelLeft = 0;
-      let panelRight = 0;
-      let panelMain = 0;
+    let mouseX = 0;
+    let panelLeft = 0;
+    let panelRight = 0;
+    let panelMain = 0;
 
-      let movableOnMouseMove = function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        const dx = e.screenX - mouseX;
-        panelLeft = container.getBoundingClientRect().width;
-        panelRight = output.getBoundingClientRect().width;
-        panelMain = main.getBoundingClientRect().width;
-        const left = ((panelLeft + dx) * 100) / panelMain;
+    let movableOnMouseMove = function (e) {
+      e.stopPropagation();
+      e.preventDefault();
+      const dx = e.screenX - mouseX;
+      panelLeft = container.getBoundingClientRect().width;
+      panelRight = output.getBoundingClientRect().width;
+      panelMain = main.getBoundingClientRect().width;
+      const left = ((panelLeft + dx) * 100) / panelMain;
 
-        container.style.width = `${left}%`;
-        const right = ((panelRight - dx) * 100) / panelMain;
-        output.style.width = `${right}%`;
-        mouseX = e.screenX;
-      };
+      container.style.width = `${left}%`;
+      const right = ((panelRight - dx) * 100) / panelMain;
+      output.style.width = `${right}%`;
+      mouseX = e.screenX;
+    };
 
-      let movableOnMouseUp = function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        document.removeEventListener("mousemove", movableOnMouseMove);
-        document.removeEventListener("mouseup", movableOnMouseUp);
-        updateIFrameSize();
-        outputWindow.style.pointerEvents = "auto";
-        container.style.pointerEvents = "auto";
-      };
-
-      let timer = null;
-      window.onresize = () => {
-        if (timer) {
-          clearTimeout(timer);
-        }
-        timer = setTimeout(() => {
-          self.updateIFrameSize();
-        }, 500);
-      };
-
-      movableBar.onmousedown = function (e) {
-        mouseX = e.screenX;
-        document.addEventListener("mousemove", movableOnMouseMove);
-        document.addEventListener("mouseup", movableOnMouseUp);
-        // cancel iframe mouse event https://www.gyrocode.com/articles/how-to-detect-mousemove-event-over-iframe-element/
-        outputWindow.style.pointerEvents = "none";
-        container.style.pointerEvents = "none";
-
-        e.stopPropagation();
-        e.preventDefault();
-      };
-
+    let movableOnMouseUp = function (event) {
+      event.stopPropagation();
+      event.preventDefault();
+      document.removeEventListener("mousemove", movableOnMouseMove);
+      document.removeEventListener("mouseup", movableOnMouseUp);
       updateIFrameSize();
+      outputWindow.style.pointerEvents = "auto";
+      container.style.pointerEvents = "auto";
+    };
 
-      monaco.editor.defineTheme("codestage", theme);
-      monaco.editor.setTheme("codestage");
+    let timer = null;
+    window.onresize = () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        self.updateIFrameSize();
+      }, 500);
+    };
 
-      editor = monaco.editor.create(container, {
-        value: "",
-        language: undefined,
-        automaticLayout: true,
-        suggest: {
-          showSnippets: false,
-          showWords: false,
-          showKeywords: false,
-          showVariables: false, // disables `undefined`, but also disables user-defined variables suggestions.
-          showModules: false, // disables `globalThis`, but also disables user-defined modules suggestions.
-        },
-        overviewRulerLanes: 0,
-        hideCursorInOverviewRuler: true,
-        overviewRulerBorder: false,
-        guides: {
-          indentation: false,
-        },
-        codeLens: false,
-        ordBasedSuggestions: false,
-        suggestOnTriggerCharacters: false,
-        wordBasedSuggestions: false,
-        snippetSuggestions: "none",
-        hover: { enabled: false },
-      });
+    movableBar.onmousedown = function (e) {
+      mouseX = e.screenX;
+      document.addEventListener("mousemove", movableOnMouseMove);
+      document.addEventListener("mouseup", movableOnMouseUp);
+      // cancel iframe mouse event https://www.gyrocode.com/articles/how-to-detect-mousemove-event-over-iframe-element/
+      outputWindow.style.pointerEvents = "none";
+      container.style.pointerEvents = "none";
 
-      onLoadFile(null, files()[0]);
+      e.stopPropagation();
+      e.preventDefault();
+    };
+
+    updateIFrameSize();
+
+    monaco.editor.defineTheme("codestage", theme);
+    monaco.editor.setTheme("codestage");
+
+    editor = monaco.editor.create(container, {
+      value: "",
+      language: undefined,
+      automaticLayout: true,
+      suggest: {
+        showSnippets: false,
+        showWords: false,
+        showKeywords: false,
+        showVariables: false, // disables `undefined`, but also disables user-defined variables suggestions.
+        showModules: false, // disables `globalThis`, but also disables user-defined modules suggestions.
+      },
+      overviewRulerLanes: 0,
+      hideCursorInOverviewRuler: true,
+      overviewRulerBorder: false,
+      guides: {
+        indentation: false,
+      },
+      codeLens: false,
+      ordBasedSuggestions: false,
+      suggestOnTriggerCharacters: false,
+      wordBasedSuggestions: false,
+      snippetSuggestions: "none",
+      hover: { enabled: false },
+    });
+
+    onLoadFile(null, files()[0]);
 
   });
 
@@ -350,7 +351,7 @@ function App() {
     <>
       <Show when={!isMobile()} style="width: 100%; display: flex; flex-direction: column"
         fallback={<>
-          <img src="../assets/logo2.png" style="width:100vw" />
+          <img src={logo} style="width:100vw" />
           <p>Only desktop browsers are supported.</p>
         </>}>
         <div ref={menu} class={styles.Menu}>

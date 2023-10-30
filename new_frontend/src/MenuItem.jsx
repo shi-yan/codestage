@@ -12,10 +12,10 @@ function MenuItem(props) {
                 <ul>
                     <For each={props.item.sub_chapters()}>
                         {(item, i) =>
-                            <menu-item
+                            <MenuItem
                                 key={item.title}
                                 item={item}>
-                            </menu-item>}
+                            </MenuItem>}
                     </For>
                 </ul>
             </Show>
