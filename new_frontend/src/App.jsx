@@ -1,9 +1,9 @@
-import { createSignal } from 'solid-js'
+import { createSignal, onMount, For } from 'solid-js'
 import styles from './App.css'
 import MenuItem from './MenuItem';
+import theme from "./CodeStage.json";
 
 function App() {
-
   function isMobile() {
     if (screen.width <= 760) {
       return true;
@@ -19,13 +19,332 @@ function App() {
   let output = null;
   let outputWindow = null;
 
-  function onMenuButtonClicked(e) {
+  const [content, setContent] = createSignal({});
+  let currentFolder = {};
+  const [files, setFiles] = createSignal([]);
+  let fileRefs = [];
+  let isMenuOpen = false;
 
+  function onMenuButtonClicked(e) {
+    if (isMenuOpen) {
+      isMenuOpen = false;
+      menu.classList.remove("slide");
+    } else {
+      isMenuOpen = true;
+      menu.classList.add("slide");
+    }
   }
 
-  function openRepo(repo) { }
+  function openRepo(url) {
+    window.open(url, "_blank");
+  }
 
-  function onRun(e) { }
+  async function onRun() {
+    const filePath = currentFolder.folder + "/index.html";
+    const model = await this.fetchFileByPath(filePath);
+    const html_string = model.getValue();
+
+    let newHTMLDocument =
+      document.implementation.createHTMLDocument("preview");
+    newHTMLDocument.documentElement.innerHTML = html_string;
+
+    let styleTags = newHTMLDocument.getElementsByTagName("link");
+
+    for (let t = 0; t < styleTags.length; ++t) {
+      const href = styleTags[t].getAttribute("href");
+
+      if (href) {
+        for (let f of currentFolder.files) {
+          if (f.filename === href) {
+            const path = currentFolder.folder + "/" + href;
+
+            const model = await this.fetchFileByPath(path);
+            const style_string = model.getValue();
+
+            styleTags[t].remove();
+            const styleTag = newHTMLDocument.createElement("style");
+
+            styleTag.textContent = style_string;
+            newHTMLDocument.head.appendChild(styleTag);
+            break;
+          }
+        }
+      }
+    }
+
+    //overwrite scripts
+    let scriptTags = newHTMLDocument.getElementsByTagName("script");
+    for (let t = 0; t < scriptTags.length; ++t) {
+      const src = scriptTags[t].getAttribute("src");
+
+      if (src) {
+        for (let f of currentFolder.files) {
+          if (f.filename === src) {
+            const path = currentFolder.folder + "/" + src;
+            scriptTags[t].removeAttribute("src");
+            const model = await this.fetchFileByPath(path);
+            const script_string = model.getValue();
+            scriptTags[t].textContent = script_string;
+            break;
+          }
+        }
+      }
+    }
+
+    let exisiting = newHTMLDocument.head.getElementsByTagName("base");
+    if (exisiting.length > 0) {
+      for (let e = 0; e < exisiting.length; ++e) {
+        exisiting[e].setAttribute(
+          "href",
+          "{{_codestage_prefix_}}/" + currentFolder.folder + "/"
+        );
+      }
+    } else {
+      let base = document.createElement("base");
+      base.setAttribute(
+        "href",
+        "{{_codestage_prefix_}}/" + currentFolder.folder + "/"
+      );
+      newHTMLDocument.head.appendChild(base);
+    }
+
+    let iframeDoc = this.$refs["outputWindow"].contentDocument;
+    iframeDoc.removeChild(iframeDoc.documentElement);
+    this.$refs["outputWindow"].srcdoc =
+      newHTMLDocument.documentElement.innerHTML;
+  }
+
+  function getFirstFolderDetails() {
+    function helper(node) {
+      if (node.folder) {
+        return node;
+      } else {
+        if (node.sub_chapters && node.sub_chapters.length > 0) {
+          for (let n of node.sub_chapters) {
+            const r = helper(n);
+            if (r !== null) {
+              return r;
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    for (let n of content().content) {
+      const r = helper(n);
+      if (r !== null) {
+        return r;
+      }
+    }
+    return null;
+  }
+
+  function getDetailsByFolder(folderName) {
+    function helper(node) {
+      if (node.folder === folderName) {
+        return node;
+      } else {
+        if (node.sub_chapters && node.sub_chapters.length > 0) {
+          for (let n of node.sub_chapters) {
+            const r = helper(n);
+            if (r !== null) {
+              return r;
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    for (let n of content().content) {
+      const r = helper(n);
+      if (r !== null) {
+        return r;
+      }
+    }
+    return null;
+  }
+
+  async function fetchContent() {
+    let manifest = await fetch("{{_codestage_prefix_}}/manifest.json");
+    let jsonContent = await manifest.json();
+    return jsonContent;
+  }
+
+  function onLoadSample(e) {
+    console.log(e);
+    menu.classList.remove("slide");
+    window.location.href = "{{_codestage_prefix_}}";
+    window.location.hash = "#" + e.folder;
+    window.location.reload();
+  }
+
+  async function fetchFileByPath(filePath) {
+    if (loadedFiles.has(filePath)) {
+      const model = loadedFiles.get(filePath);
+      return model;
+    } else {
+      let file = await fetch("{{_codestage_prefix_}}/" + filePath);
+      let fileContent = await file.text();
+      const model = monaco.editor.createModel(
+        fileContent,
+        undefined, // language
+        monaco.Uri.file(filePath) // uri
+      );
+      loadedFiles.set(filePath, model);
+      return model;
+    }
+  }
+
+  async function onLoadFile(e, f) {
+    for (let re of this.fileRefs) {
+      if (re.getAttribute("filename") === f.filename) {
+        if (f.is_readonly == true) {
+          re.classList.add("readonly");
+        } else {
+          re.classList.add("active");
+        }
+      } else {
+        re.classList.remove("active");
+        re.classList.remove("readonly");
+      }
+    }
+
+    const filePath = currentFolder.folder + "/" + f.filename;
+    const model = await this.fetchFileByPath(filePath);
+    editor.setModel(model);
+    if (f.is_readonly == true) {
+      editor.updateOptions({ readOnly: true });
+    } else {
+      editor.updateOptions({ readOnly: false });
+    }
+
+    document.title = currentFolder.title + " - " + f.filename;
+  }
+
+  function updateIFrameSize() {
+    const outputRect = document
+      .getElementById("output")
+      .getBoundingClientRect();
+
+    outputWindow.style.width = outputRect.width + "px";
+    outputWindow.style.height = outputRect.height + "px";
+  }
+
+  onMount(async () => {
+    if (isMobile()) {
+      return;
+    }
+
+    setContent( await fetchContent());
+    document.title = content().title;
+
+    let folder = window.location.hash;
+    if (folder.length > 0) {
+      folder = folder.substring(1);
+    } else {
+      folder = null;
+    }
+
+    currentFolder =
+      (folder && getDetailsByFolder(folder)) ||
+      getFirstFolderDetails();
+
+    if (currentFolder !== null) {
+      setFiles([...this.currentFolder.files]);
+    }
+
+    /*this.eventBus.on("load", (e) => {
+      this.onLoadSample(e);
+    });*/
+
+
+      let mouseX = 0;
+      let panelLeft = 0;
+      let panelRight = 0;
+      let panelMain = 0;
+
+      let movableOnMouseMove = function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const dx = e.screenX - mouseX;
+        panelLeft = container.getBoundingClientRect().width;
+        panelRight = output.getBoundingClientRect().width;
+        panelMain = main.getBoundingClientRect().width;
+        const left = ((panelLeft + dx) * 100) / panelMain;
+
+        container.style.width = `${left}%`;
+        const right = ((panelRight - dx) * 100) / panelMain;
+        output.style.width = `${right}%`;
+        mouseX = e.screenX;
+      };
+
+      let movableOnMouseUp = function (event) {
+        event.stopPropagation();
+        event.preventDefault();
+        document.removeEventListener("mousemove", movableOnMouseMove);
+        document.removeEventListener("mouseup", movableOnMouseUp);
+        updateIFrameSize();
+        outputWindow.style.pointerEvents = "auto";
+        container.style.pointerEvents = "auto";
+      };
+
+      let timer = null;
+      window.onresize = () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+          self.updateIFrameSize();
+        }, 500);
+      };
+
+      movableBar.onmousedown = function (e) {
+        mouseX = e.screenX;
+        document.addEventListener("mousemove", movableOnMouseMove);
+        document.addEventListener("mouseup", movableOnMouseUp);
+        // cancel iframe mouse event https://www.gyrocode.com/articles/how-to-detect-mousemove-event-over-iframe-element/
+        outputWindow.style.pointerEvents = "none";
+        container.style.pointerEvents = "none";
+
+        e.stopPropagation();
+        e.preventDefault();
+      };
+
+      updateIFrameSize();
+
+      monaco.editor.defineTheme("codestage", theme);
+      monaco.editor.setTheme("codestage");
+
+      editor = monaco.editor.create(container, {
+        value: "",
+        language: undefined,
+        automaticLayout: true,
+        suggest: {
+          showSnippets: false,
+          showWords: false,
+          showKeywords: false,
+          showVariables: false, // disables `undefined`, but also disables user-defined variables suggestions.
+          showModules: false, // disables `globalThis`, but also disables user-defined modules suggestions.
+        },
+        overviewRulerLanes: 0,
+        hideCursorInOverviewRuler: true,
+        overviewRulerBorder: false,
+        guides: {
+          indentation: false,
+        },
+        codeLens: false,
+        ordBasedSuggestions: false,
+        suggestOnTriggerCharacters: false,
+        wordBasedSuggestions: false,
+        snippetSuggestions: "none",
+        hover: { enabled: false },
+      });
+
+      onLoadFile(null, files()[0]);
+
+  });
 
   return (
     <>
@@ -35,10 +354,10 @@ function App() {
           <p>Only desktop browsers are supported.</p>
         </>}>
         <div ref={menu} class={styles.Menu}>
-          <h2 class={styles.MenuTitle}>{content.title}</h2>
+          <h2 class={styles.MenuTitle}>{content().title}</h2>
           <div class={styles.MenuContent}>
             <ul>
-              <For each={content.content()}>
+              <For each={content().content}>
                 {(item, i) =>
                   <MenuItem
                     key={item.title}
