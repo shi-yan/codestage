@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "preview": "vite preview"
   },
   "dependencies": {
+    "monaco-editor": "^0.44.0",
+    "solid-icons": "^1.1.0",
     "solid-js": "^1.7.8"
   },
   "devDependencies": {

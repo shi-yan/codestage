@@ -3,8 +3,18 @@ import styles from './App.css'
 import MenuItem from './MenuItem';
 import theme from "./assets/CodeStage.json";
 import logo from "./assets/logo2.png";
+import { IoMenuSharp } from 'solid-icons/io'
+import { AiOutlineFile } from 'solid-icons/ai'
+import { FaBrandsSquareGit } from 'solid-icons/fa'
+import { FaSolidPlay } from 'solid-icons/fa'
+import * as monaco from "monaco-editor";
 
 function App() {
+
+  function prefixSubPath(path) {
+    return "{{_codestage_prefix_}}/" + path;
+  }
+
   function isMobile() {
     if (screen.width <= 760) {
       return true;
@@ -97,14 +107,14 @@ function App() {
       for (let e = 0; e < exisiting.length; ++e) {
         exisiting[e].setAttribute(
           "href",
-          "{{_codestage_prefix_}}/" + currentFolder.folder + "/"
+          prefixSubPath( currentFolder.folder + "/")
         );
       }
     } else {
       let base = document.createElement("base");
       base.setAttribute(
         "href",
-        "{{_codestage_prefix_}}/" + currentFolder.folder + "/"
+        prefixSubPath( currentFolder.folder + "/")
       );
       newHTMLDocument.head.appendChild(base);
     }
@@ -168,7 +178,7 @@ function App() {
   }
 
   async function fetchContent() {
-    let manifest = await fetch("{{_codestage_prefix_}}/manifest.json");
+    let manifest = await fetch(prefixSubPath("manifest.json"));
     let jsonContent = await manifest.json();
     return jsonContent;
   }
@@ -176,7 +186,7 @@ function App() {
   function onLoadSample(e) {
     console.log(e);
     menu.classList.remove("slide");
-    window.location.href = "{{_codestage_prefix_}}";
+    window.location.href = prefixSubPath("");
     window.location.hash = "#" + e.folder;
     window.location.reload();
   }
@@ -186,7 +196,7 @@ function App() {
       const model = loadedFiles.get(filePath);
       return model;
     } else {
-      let file = await fetch("{{_codestage_prefix_}}/" + filePath);
+      let file = await fetch( prefixSubPath(filePath));
       let fileContent = await file.text();
       const model = monaco.editor.createModel(
         fileContent,
@@ -374,7 +384,7 @@ function App() {
             onclick={onMenuButtonClicked}
             class={styles.TabButton}
           >
-            <menu-icon style="vertical-align: middle"></menu-icon>
+            <IoMenuSharp style="vertical-align: middle" />
           </button>
           <For each={files()}>
             {(f, i) =>
@@ -389,7 +399,7 @@ function App() {
 
                 class={styles.TabButton}
               >
-                <file-outline-icon style="vertical-align: middle"></file-outline-icon>
+                <AiOutlineFile style="vertical-align: middle" />
                 <span class={styles.TabButtonText}>{f.filename}</span>
               </button >
             }
@@ -400,12 +410,12 @@ function App() {
               onclick={e => openRepo(content.repo)}
               class={styles.TabButton}
             >
-              <git-icon style="vertical-align: middle"></git-icon>
+              <FaBrandsSquareGit style="vertical-align: middle" />
               <span class={styles.TabButtonText}>REPO</span>
             </button >
           </Show>
           <button onclick={onRun} class={styles.TabButton} >
-            <play-icon style="vertical-align: middle"></play-icon>
+            <FaSolidPlay style="vertical-align: middle" />
             <span class={styles.TabButtonText}>RUN</span>
           </button >
         </div >
