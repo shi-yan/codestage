@@ -12,7 +12,7 @@ import * as monaco from "monaco-editor";
 function App() {
 
   function prefixSubPath(path) {
-    return "{{_codestage_prefix_}}/" + path;
+    return "$$_codestage_prefix_$$/" + path;
   }
 
   function isMobile() {
@@ -29,6 +29,8 @@ function App() {
   let movableBar = null;
   let output = null;
   let outputWindow = null;
+  let editor = null;
+  let loadedFiles = new Map();
 
   const [content, setContent] = createSignal({});
   let currentFolder = {};
@@ -325,8 +327,8 @@ function App() {
 
     updateIFrameSize();
 
-    monaco.editor.defineTheme("codestage", theme);
-    monaco.editor.setTheme("codestage");
+    //monaco.editor.defineTheme("codestage", theme);
+    //monaco.editor.setTheme("codestage");
 
     editor = monaco.editor.create(container, {
       value: "",
@@ -353,7 +355,7 @@ function App() {
       hover: { enabled: false },
     });
 
-    onLoadFile(null, files()[0]);
+    //onLoadFile(null, files()[0]);
 
   });
 

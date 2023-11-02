@@ -1,9 +1,9 @@
 title = "CodeStage example"
 repo = "https://github.com/shi-yan/codestage"
 # need to have the slash
-prefix = "/codestage"
+prefix = ""
 target = "dist"
-url = "https://shi-yan.github.io/codestage/"
+url = "http://localhost:8000"
 meta_image = "meta.png"
 description = """
 CodeStage is a static site generator to build JS playground demos."""

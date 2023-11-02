@@ -140,18 +140,30 @@ fn fetch_filecontent(
                 rendered = rendered.replace("{{_codestage_url_}}", url);
                 rendered = rendered.replace("{{_codestage_version_}}", version);
 
-                if let Some(_) = content.find("{{_codestage_prefix_}}") {
-                    rendered = rendered.replace("{{_codestage_prefix_}}", prefix_str);
+                if prefix_str.len() == 0 {
+                    if let Some(_) = content.find("/$$_codestage_prefix_$$") {
+                        rendered = rendered.replace("/$$_codestage_prefix_$$", "");
+                    }
+                }
+
+                if let Some(_) = content.find("$$_codestage_prefix_$$") {
+                    rendered = rendered.replace("$$_codestage_prefix_$$", prefix_str);
                 }
                 return rendered.as_bytes().to_vec();
             }
         }
         
         if ext == "html" || ext == "js" {
-            let content = String::from_utf8_lossy(&f.data);
+            let mut content = String::from_utf8_lossy(&f.data);
 
-            if let Some(_) = content.find("{{_codestage_prefix_}}") {
-                let rendered = content.replace("{{_codestage_prefix_}}", prefix_str);
+            if prefix_str.len() == 0 {
+                if let Some(_) = content.find("/$$_codestage_prefix_$$") {
+                    content = content.replace("/$$_codestage_prefix_$$", "").into();
+                }
+            }
+
+            if let Some(_) = content.find("$$_codestage_prefix_$$") {
+                let rendered = content.replace("$$_codestage_prefix_$$", prefix_str);
                 return rendered.as_bytes().to_vec();
             }
         }
