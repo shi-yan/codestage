@@ -109,14 +109,14 @@ function App() {
       for (let e = 0; e < exisiting.length; ++e) {
         exisiting[e].setAttribute(
           "href",
-          prefixSubPath( currentFolder.folder + "/")
+          prefixSubPath(currentFolder.folder + "/")
         );
       }
     } else {
       let base = document.createElement("base");
       base.setAttribute(
         "href",
-        prefixSubPath( currentFolder.folder + "/")
+        prefixSubPath(currentFolder.folder + "/")
       );
       newHTMLDocument.head.appendChild(base);
     }
@@ -198,7 +198,7 @@ function App() {
       const model = loadedFiles.get(filePath);
       return model;
     } else {
-      let file = await fetch( prefixSubPath(filePath));
+      let file = await fetch(prefixSubPath(filePath));
       let fileContent = await file.text();
       const model = monaco.editor.createModel(
         fileContent,
@@ -327,8 +327,21 @@ function App() {
 
     updateIFrameSize();
 
-    //monaco.editor.defineTheme("codestage", theme);
-    //monaco.editor.setTheme("codestage");
+    window.MonacoEnvironment = {
+      getWorkerUrl: function (workerId, label) {
+        console.log("moduleid", workerId, label)
+        if (workerId === 'workerMain.js') {
+          return '/assets/vs/base/worker/' + workerId;
+        }
+      }/*,
+      getWorker(workerId, label){
+        console.log("workerid", workerId, label)
+        return '/assets/'+workerId
+      }*/
+    }
+
+    monaco.editor.defineTheme("codestage", theme);
+    monaco.editor.setTheme("codestage");
 
     editor = monaco.editor.create(container, {
       value: "",
