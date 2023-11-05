@@ -36,15 +36,15 @@ function App() {
   let currentFolder = {};
   const [files, setFiles] = createSignal([]);
   let fileRefs = [];
-  let isMenuOpen = false;
+  const [isMenuOpen, setIsMenuOpen] = createSignal(false);
 
   function onMenuButtonClicked(e) {
-    if (isMenuOpen) {
-      isMenuOpen = false;
-      menu.classList.remove("slide");
+    console.log("onMenuButtonClicked called")
+    if (isMenuOpen()) {
+      setIsMenuOpen(false);
     } else {
-      isMenuOpen = true;
-      menu.classList.add("slide");
+      console.log("set true")
+      setIsMenuOpen(true);
     }
   }
 
@@ -187,7 +187,7 @@ function App() {
 
   function onLoadSample(e) {
     console.log(e);
-    menu.classList.remove("slide");
+    setIsMenuOpen(false);
     window.location.href = prefixSubPath("");
     window.location.hash = "#" + e.folder;
     window.location.reload();
@@ -309,7 +309,7 @@ function App() {
         clearTimeout(timer);
       }
       timer = setTimeout(() => {
-        self.updateIFrameSize();
+        updateIFrameSize();
       }, 500);
     };
 
@@ -379,7 +379,7 @@ function App() {
         <p>Only desktop browsers are supported.</p>
       </>}>
       <div style="width: 100%; display: flex; flex-direction: column">
-        <div ref={menu} class={styles.Menu}>
+        <div ref={menu} class={styles.Menu} classList={{slide: isMenuOpen()}}>
           <h2 class={styles.MenuTitle}>{content().title}</h2>
           <div class={styles.MenuContent}>
             <ul>
@@ -396,7 +396,7 @@ function App() {
         <div class={styles.ToolBar}>
           <button
             style="z-index: 200"
-            onclick={onMenuButtonClicked}
+            onClick={onMenuButtonClicked}
             class={styles.TabButton}
           >
             <IoMenuSharp style="vertical-align: middle" />
