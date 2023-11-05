@@ -1,5 +1,5 @@
 import { createSignal, onMount, For } from 'solid-js'
-import styles from './App.css'
+import styles from './App.module.css'
 import MenuItem from './MenuItem';
 import theme from "./assets/CodeStage.json";
 import logo from "./assets/logo2.png";
@@ -373,12 +373,12 @@ function App() {
   });
 
   return (
-    <>
-      <Show when={!isMobile()} style="width: 100%; display: flex; flex-direction: column"
-        fallback={<>
-          <img src={logo} style="width:100vw" />
-          <p>Only desktop browsers are supported.</p>
-        </>}>
+    <Show when={!isMobile()}
+      fallback={<>
+        <img src={logo} style="width:100vw" />
+        <p>Only desktop browsers are supported.</p>
+      </>}>
+      <div style="width: 100%; display: flex; flex-direction: column">
         <div ref={menu} class={styles.Menu}>
           <h2 class={styles.MenuTitle}>{content().title}</h2>
           <div class={styles.MenuContent}>
@@ -441,9 +441,8 @@ function App() {
             <iframe ref={outputWindow} class={styles.Sandbox}></iframe>
           </div>
         </div>
-      </Show>
-    </>
-  )
+      </div>
+    </Show>)
 }
 
 export default App
