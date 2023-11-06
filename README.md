@@ -87,7 +87,7 @@ is_readonly = true
 
 ```
 
-Each indivisual sample should be in a separate folder. Under each folder, there must be an `index.html` file. This will be the entrypoint for the sample. When a user clicks the run button, we will load and display this `index.html` file.
+Each individual sample should be in a separate folder. Under each folder, there must be an `index.html` file. This will be the entrypoint for the sample. When a user clicks the run button, we will load and display this `index.html` file.
 
 There can be a utility folder housing the common files that are shared by all samples.
 
@@ -144,7 +144,7 @@ The generated site will be under `example_project/dist`
 ```
 cd frontend
 npm i --save
-npm run build
+./build
 cd cli
 cargo build --release
 ```
@@ -158,5 +158,5 @@ When we build a CodeStage project, we first validate the `codestage.toml` file, 
 4. Finally we inject a `base` tag into the document, so that we can use the sample's folder as the root.
 5. The dom tree assembled above will be stuffed into an iframe for execution.
 
-The in-browser editor is built using [Monaco](https://github.com/shi-yan/codestage).
+The in-browser editor is built using [Monaco](https://microsoft.github.io/monaco-editor/).
 
