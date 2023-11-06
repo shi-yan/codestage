@@ -1,0 +1,12 @@
+.MenuItem {
+  color: #9492b1;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0px;
+  cursor: pointer;
+}
+
+.ClickableItem {
+  padding: 2px;
+}

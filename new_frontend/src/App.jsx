@@ -333,11 +333,7 @@ function App() {
         if (workerId === 'workerMain.js') {
           return '/assets/vs/base/worker/' + workerId;
         }
-      }/*,
-      getWorker(workerId, label){
-        console.log("workerid", workerId, label)
-        return '/assets/'+workerId
-      }*/
+      }
     }
 
     monaco.editor.defineTheme("codestage", theme);
@@ -368,7 +364,7 @@ function App() {
       hover: { enabled: false },
     });
 
-    //onLoadFile(null, files()[0]);
+    onLoadFile(null, files()[0]);
 
   });
 

@@ -153,7 +153,7 @@ fn fetch_filecontent(
             }
         }
         
-        if ext == "html" || ext == "js" {
+        if ext == "html" || ext == "js" || ext == "css" {
             let mut content = String::from_utf8_lossy(&f.data);
 
             if prefix_str.len() == 0 {
@@ -163,9 +163,9 @@ fn fetch_filecontent(
             }
 
             if let Some(_) = content.find("$$_codestage_prefix_$$") {
-                let rendered = content.replace("$$_codestage_prefix_$$", prefix_str);
-                return rendered.as_bytes().to_vec();
+                content = content.replace("$$_codestage_prefix_$$", prefix_str).into();
             }
+            return content.as_bytes().to_vec();
         }
     }
     return f.data.to_vec();
@@ -302,6 +302,8 @@ fn main() {
             path.push(file.as_ref());
 
             let f = Asset::get(file.as_ref()).unwrap();
+
+            println!("fetch_filecontent {:?}", path);
 
             let data: Vec<u8> = fetch_filecontent(
                 &path,

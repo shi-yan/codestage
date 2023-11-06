@@ -1,11 +1,11 @@
 import { createSignal } from 'solid-js'
-import styles from './MenuItem.css'
+import styles from './MenuItem.module.css'
 
 function MenuItem(props) {
     function onSelect(e) { }
     return (
-        <li class="menu-item clickable-item">
-            <h3 class={props.item.folder ? 'clickable' : ''} onclick={onSelect}>
+        <li class={`${styles.MenuItem} ${styles.ClickableItem}`} >
+            <h3 classList={{ clickable: props.item.folder }} onclick={onSelect}>
                 {props.item.title}
             </h3>
             <Show when={props.item.sub_chapters && props.item.sub_chapters.length > 0}>

@@ -62,3 +62,38 @@ button:focus-visible {
   left: 0px !important;
   transition: 0.3s;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background-color: #1a183d;
+  border-radius: 4px;
+  border-radius: 2px;
+  border-style: solid;
+  border-color: #1a183d;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #222045;
+  border-radius: 4px;
+}
+
+.clickable {
+  cursor: pointer;
+  margin-block-start: 4px;
+  margin-block-end: 4px;
+}
+
+.clickable:hover {
+  background-color: #222045;
+  color: #ffffff;
+  border-radius: 4px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #222045;
+}
