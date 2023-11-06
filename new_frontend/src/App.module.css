@@ -53,6 +53,7 @@
   font-family: "Source Code Pro", monospace;
 }
 
+/*
 .TabButton.active {
   border-bottom-width: 4px;
   border-style: solid;
@@ -67,6 +68,10 @@
   border-color: #9b304c;
   cursor: default;
   color: #ffffff;
+}*/
+
+.TabButton:focus {
+  outline: none;
 }
 
 .Main {
@@ -85,6 +90,7 @@
   border-style: solid;
   border-color: #2b284b;
   background-color: #1a183d;
+  position: relative;
 }
 
 .Output {
@@ -100,4 +106,3 @@
   border-color: #2b284b;
   background-color: #1a183d;
 }
-

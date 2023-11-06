@@ -268,11 +268,6 @@ function App() {
       setFiles([...currentFolder.files]);
     }
 
-    /*this.eventBus.on("load", (e) => {
-      this.onLoadSample(e);
-    });*/
-
-
     let mouseX = 0;
     let panelLeft = 0;
     let panelRight = 0;
@@ -384,6 +379,7 @@ function App() {
                   <MenuItem
                     key={item.title}
                     item={item}
+                    load={onLoadSample}
                   ></MenuItem>}
               </For>
             </ul>
@@ -425,7 +421,7 @@ function App() {
               <span class={styles.TabButtonText}>REPO</span>
             </button >
           </Show>
-          <button onclick={onRun} class={styles.TabButton} >
+          <button onClick={onRun} class={styles.TabButton} >
             <FaSolidPlay style="vertical-align: middle" />
             <span class={styles.TabButtonText}>RUN</span>
           </button >

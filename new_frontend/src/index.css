@@ -97,3 +97,14 @@ button:focus-visible {
   border-style: solid;
   border-color: #222045;
 }
+
+#adjust-bar {
+  border-top-width: 0px;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-bottom-width: 0px;
+  border-style: solid;
+  border-color: black;
+  width: 3px;
+  cursor: ew-resize;
+}

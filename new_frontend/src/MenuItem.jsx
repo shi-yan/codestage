@@ -2,10 +2,12 @@ import { createSignal } from 'solid-js'
 import styles from './MenuItem.module.css'
 
 function MenuItem(props) {
-    function onSelect(e) { }
+    function onSelect(e) {
+        props.load(props.item);
+    }
     return (
         <li class={`${styles.MenuItem} ${styles.ClickableItem}`} >
-            <h3 classList={{ clickable: props.item.folder }} onclick={onSelect}>
+            <h3 classList={{ clickable: props.item.folder }} onClick={onSelect}>
                 {props.item.title}
             </h3>
             <Show when={props.item.sub_chapters && props.item.sub_chapters.length > 0}>
@@ -14,7 +16,9 @@ function MenuItem(props) {
                         {(item, i) =>
                             <MenuItem
                                 key={item.title}
-                                item={item}>
+                                item={item}
+                                load={props.load}
+                                >
                             </MenuItem>}
                     </For>
                 </ul>
