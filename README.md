@@ -20,7 +20,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.1-alpha.1
+cargo install codestage --version 0.1.1-alpha.0
 ```
 
 ## Usage
