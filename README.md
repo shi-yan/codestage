@@ -25,26 +25,26 @@ cargo install codestage --version 0.1.1-alpha.1
 
 ## Usage
 
-Create a project folder and a project file [codestage.toml](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.toml)
+Create a project folder and a project file [codestage.json](https://github.com/shi-yan/codestage/blob/master/example_project/codestage.json)
 
-```toml
+```json
+{
 # Title of the project (must have).
-title = "CodeStage example"
+"title" : "CodeStage example"
 # Link to the repository (optional).
-repo = "xxx"
+"repo" : "xxx"
 # If not deployed under the root directory, this will be needed. The first slash is required (optional).
-prefix = "/codestage"
+"prefix" : "/codestage"
 # Specify the output folder (optional).
-target = "dist"
+"target" : "dist"
 # Link to the deployed site, this will be used for meta tags (optional).
-url = "https://shi-yan.github.io/codestage/"
+"url" : "https://shi-yan.github.io/codestage/"
 # Image used for meta tags (optional).
-meta_image = "meta.png"
+"meta_image" : "meta.png"
 # Description used for meta tags (optional).
-description = """
-CodeStage is a static site generator to build JS playground demos."""
+"description" : "CodeStage is a static site generator to build JS playground demos."
 # Utility folders are shared by all samples in the project (optional).
-utilities = [ "utility_folder_1",  "utility_folder_2" ]
+"utilities" : [ "utility_folder_1",  "utility_folder_2" ]
 
 # The following is the table of content, which will be rendered in the menu area.
 # The content field is an array of chapters.
@@ -84,6 +84,7 @@ folder = "test_base"
 [[content.files]]
 filename = "index.html"
 is_readonly = true
+}
 
 ```
 
