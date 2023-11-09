@@ -12,7 +12,7 @@ import * as monaco from "monaco-editor";
 function App() {
 
   function prefixSubPath(path) {
-    return "$$_codestage_prefix_$$/" + path;
+    return "$$_codestage_prefix_$$" + (path?'/'+path:'');
   }
 
   function isMobile() {
@@ -104,19 +104,19 @@ function App() {
       }
     }
 
-    let exisiting = newHTMLDocument.head.getElementsByTagName("base");
-    if (exisiting.length > 0) {
-      for (let e = 0; e < exisiting.length; ++e) {
-        exisiting[e].setAttribute(
+    let existing = newHTMLDocument.head.getElementsByTagName("base");
+    if (existing.length > 0) {
+      for (let e = 0; e < existing.length; ++e) {
+        existing[e].setAttribute(
           "href",
-          prefixSubPath(currentFolder.folder + "/")
+          "/" + prefixSubPath(currentFolder.folder)+'/'
         );
       }
     } else {
       let base = document.createElement("base");
       base.setAttribute(
         "href",
-        prefixSubPath(currentFolder.folder + "/")
+        "/" + prefixSubPath(currentFolder.folder)+'/'
       );
       newHTMLDocument.head.appendChild(base);
     }
@@ -180,7 +180,7 @@ function App() {
   }
 
   async function fetchContent() {
-    let manifest = await fetch(prefixSubPath("manifest.json"));
+    let manifest = await fetch("manifest.json");
     let jsonContent = await manifest.json();
     return jsonContent;
   }
@@ -188,7 +188,7 @@ function App() {
   function onLoadSample(e) {
     console.log(e);
     setIsMenuOpen(false);
-    window.location.href = prefixSubPath("");
+    window.location.href = prefixSubPath();
     window.location.hash = "#" + e.folder;
     window.location.reload();
   }
@@ -198,7 +198,7 @@ function App() {
       const model = loadedFiles.get(filePath);
       return model;
     } else {
-      let file = await fetch(prefixSubPath(filePath));
+      let file = await fetch(filePath);
       let fileContent = await file.text();
       const model = monaco.editor.createModel(
         fileContent,
@@ -326,7 +326,7 @@ function App() {
       getWorkerUrl: function (workerId, label) {
         console.log("moduleid", workerId, label)
         if (workerId === 'workerMain.js') {
-          return '/assets/vs/base/worker/' + workerId;
+          return 'assets/vs/base/worker/' + workerId;
         }
       }
     }
@@ -370,7 +370,7 @@ function App() {
         <p>Only desktop browsers are supported.</p>
       </>}>
       <div style="width: 100%; display: flex; flex-direction: column">
-        <div ref={menu} class={styles.Menu} classList={{slide: isMenuOpen()}}>
+        <div ref={menu} class={styles.Menu} classList={{ slide: isMenuOpen() }}>
           <h2 class={styles.MenuTitle}>{content().title}</h2>
           <div class={styles.MenuContent}>
             <ul>
