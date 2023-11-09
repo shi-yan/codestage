@@ -1,0 +1,75 @@
+title = "CodeStage example"
+repo = "https://github.com/shi-yan/codestage"
+# need to have the slash
+prefix = ""
+target = "dist"
+url = "http://localhost:8000"
+meta_image = "meta.png"
+description = """
+CodeStage is a static site generator to build JS playground demos."""
+utilities = [ "khronos",  "tdl" ]
+
+[[content]]
+title = "1. Basic Sample"
+folder = "basic_sample"
+
+[[content.files]]
+filename = "index.html"
+
+[[content.files]]
+filename = "test.css"
+
+[[content.files]]
+filename = "test.js"
+
+[[content.files]]
+filename = "test.glsl"
+
+[[content.sub_chapters]]
+title = "1.1 Nested Basic Sample"
+folder = "basic_sample"
+[[content.sub_chapters.files]]
+filename = "index.html"
+is_readonly = true
+
+[[content.sub_chapters.sub_chapters]]
+title = "1.1.1 Nested Basic Sample"
+folder = "basic_sample"
+[[content.sub_chapters.sub_chapters.files]]
+filename = "index.html"
+is_readonly = true
+
+[[content]]
+title = "2. Electric Flower"
+folder = "electricflower"
+
+[[content.files]]
+filename = "index.html"
+
+[[content.files]]
+filename = "flower.js"
+
+[[content.files]]
+filename = "postprocess.js"
+is_readonly = true
+
+[[content]]
+title = "3. Halo"
+folder = "halo"
+
+[[content.files]]
+filename = "index.html"
+
+[[content.files]]
+filename = "halo.js"
+
+[[content.files]]
+filename = "voronoi.js"
+is_readonly = true
+
+[[content]]
+title = "4. Space Rocks"
+folder = "spacerocks"
+
+[[content.files]]
+filename = "index.html"

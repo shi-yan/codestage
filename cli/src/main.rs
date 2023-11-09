@@ -1,35 +1,15 @@
 use clap::Parser;
 use rust_embed::EmbeddedFile;
 use rust_embed::RustEmbed;
-use serde_json::Map;
 use std::fs;
 use std::fs::File;
 use std::io::ErrorKind;
 use std::path::Path;
 use std::path::PathBuf;
+use toml::Value;
 extern crate fs_extra;
-use anyhow::Result;
 use fs_extra::dir::CopyOptions;
 use fs_extra::TransitProcess;
-use serde_json::Value;
-use std::process::{ExitCode, Termination};
-pub enum CodeStageExitCode {
-    OK,
-    ERR(String),
-}
-
-impl Termination for CodeStageExitCode {
-    fn report(self) -> ExitCode {
-        match self {
-            CodeStageExitCode::OK => ExitCode::SUCCESS,
-            CodeStageExitCode::ERR(v) => {
-                println!("Error: {}", v);
-                ExitCode::from(255)
-            }
-        }
-    }
-}
-
 #[derive(RustEmbed)]
 #[folder = "dist/"]
 struct Asset;
@@ -42,16 +22,20 @@ struct Args {
     target: String,
 
     /// Manifest file
-    #[arg(short, long, default_value_t = String::from("codestage.json"))]
+    #[arg(short, long, default_value_t = String::from("codestage.toml"))]
     manifest: String,
 
     #[arg(short, long)]
     prefix: Option<String>,
 }
 
-fn verify_chapter(content: &Map<String, serde_json::Value>, indent: usize, target: &str) -> bool {
+fn verify_chapter(
+    content: &toml::map::Map<String, toml::Value>,
+    indent: usize,
+    target: &str,
+) -> bool {
     if !content.contains_key("title") {
-        println!("Config File Error: A Chapter must have a title.");
+        println!("Toml Format Error: A Chapter must have a title.");
         return false;
     } else {
         println!(
@@ -64,7 +48,7 @@ fn verify_chapter(content: &Map<String, serde_json::Value>, indent: usize, targe
 
     if content.contains_key("folder") {
         if let Some(folder) = content.get("folder") {
-            if let Some(folder_str) = folder.as_str() {
+            if let toml::Value::String(folder_str) = folder {
                 let mut options = CopyOptions::new();
                 options.overwrite = true;
                 let handle = |_process_info: TransitProcess| {
@@ -81,7 +65,7 @@ fn verify_chapter(content: &Map<String, serde_json::Value>, indent: usize, targe
                     }
                 }
             } else {
-                println!("Config File Error: A folder must be a string.");
+                println!("Toml Format Error: A folder must be a string.");
                 return false;
             }
         }
@@ -89,60 +73,46 @@ fn verify_chapter(content: &Map<String, serde_json::Value>, indent: usize, targe
 
     if content.contains_key("files") {
         let mut has_seen_index = false;
-        if let Some(files) = content.get("files") {
-            if let Some(files) = files.as_array() {
-                for f in files {
-                    if let Some(file) = f.as_object() {
-                        if !file.contains_key("filename") {
-                            println!("Config File Error: A file must contain a filename.");
-                            return false;
-                        } else {
-                            if let Some(filename) = file.get("filename") {
-                                if let Some(filename) = filename.as_str() {
-                                    if filename == "index.html" {
-                                        has_seen_index = true;
-                                    }
-                                } else {
-                                    println!("Config File Error: Filename should be a string.");
-                                    return false;
-                                }
-                            } else {
-                                println!("Config File Error: Filename must be a string.");
-                                return false;
-                            }
-                        }
-                    } else {
-                        println!("Config File Error: A File entry should be an object.");
+        if let toml::Value::Array(files) = content.get("files").unwrap() {
+            for f in files {
+                if let toml::Value::Table(ref file) = f {
+                    if !file.contains_key("filename") {
+                        println!("Toml Format Error: A file must contain a filename.");
                         return false;
+                    } else {
+                        if let toml::Value::String(filename) = file.get("filename").unwrap() {
+                            if filename == "index.html" {
+                                has_seen_index = true;
+                            }
+                        } else {
+                            println!("Toml Format Error: Filename must be a string.");
+                            return false;
+                        }
                     }
                 }
             }
         }
 
         if has_seen_index == false {
-            println!("Config File Error: There must be a index.html in each folder.");
+            println!("Toml Format Error: There must be a index.html in each folder.");
             return false;
         }
     }
 
     if content.contains_key("sub_chapters") {
-        if let Some(content) = content.get("sub_chapters") {
-            if let Some(content) = content.as_array() {
-                for c in content {
-                    if let Some(c) = c.as_object() {
-                        if !verify_chapter(c, indent + 2, target) {
-                            return false;
-                        }
-                    } else {
-                        println!("Config File Error: A sub chapter must be a map type.");
+        if let toml::Value::Array(content) = content.get("sub_chapters").unwrap() {
+            for c in content {
+                if let toml::Value::Table(c) = c {
+                    if !verify_chapter(c, indent + 2, target) {
+                        return false;
                     }
+                } else {
+                    println!("Toml Format Error: A sub chapter must be a map type.");
                 }
-                return true;
-            } else {
-                println!("Config File Error: Sub chapter field must have an array type.");
             }
+            return true;
         } else {
-            println!("Config File Error: Sub chapter field must have an array type.");
+            println!("Toml Format Error: Sub chapter field must have an array type.");
         }
     }
 
@@ -182,7 +152,7 @@ fn fetch_filecontent(
                 return rendered.as_bytes().to_vec();
             }
         }
-
+        
         if ext == "html" || ext == "js" || ext == "css" {
             let mut content = String::from_utf8_lossy(&f.data);
 
@@ -201,7 +171,7 @@ fn fetch_filecontent(
     return f.data.to_vec();
 }
 
-fn main() -> Result<CodeStageExitCode> {
+fn main() {
     let args = Args::parse();
     //https://patorjk.com/software/taag/#p=display&f=Ogre&t=Code%20Stage
     println!(
@@ -216,14 +186,21 @@ fn main() -> Result<CodeStageExitCode> {
 
     let contents =
         fs::read_to_string(args.manifest).expect("Should have been able to read the file");
-    let value: Value = serde_json::from_str(&contents)?;
 
-    if let Some(ref global) = value.as_object() {
+    let value = match contents.parse::<Value>() {
+        Err(error) => {
+            println!("Toml Parsing Error: {}", error.to_string());
+            return;
+        }
+        Ok(value) => value,
+    };
+
+    if let toml::Value::Table(ref global) = value {
         let mut target_folder = args.target.clone();
         if global.contains_key("target") {
             if let Some(target) = global.get("target") {
-                if let Some(target_str) = target.as_str() {
-                    target_folder = target_str.to_string();
+                if let toml::Value::String(target_str) = target {
+                    target_folder = target_str.clone();
                 }
             }
         }
@@ -236,10 +213,8 @@ fn main() -> Result<CodeStageExitCode> {
         } else {
             let target_is_dir: bool = Path::new(&target_folder).is_dir();
             if !target_is_dir {
-                return Ok(CodeStageExitCode::ERR(format!(
-                    "Target {} is not a folder.",
-                    &target_folder
-                )));
+                println!("Target {} is not a folder.", &target_folder);
+                return;
             }
         }
 
@@ -249,7 +224,7 @@ fn main() -> Result<CodeStageExitCode> {
             String::from(
                 global
                     .get("prefix")
-                    .unwrap_or(&serde_json::Value::String("".to_string()))
+                    .unwrap_or(&toml::Value::String("".to_string()))
                     .as_str()
                     .unwrap_or(""),
             )
@@ -258,15 +233,15 @@ fn main() -> Result<CodeStageExitCode> {
         let meta_image = if global.contains_key("meta_image") {
             let mut meta_image = String::new();
             if let Some(meta_image_value) = global.get("meta_image") {
-                if let Some(meta_image_str) = meta_image_value.as_str() {
-                    let meta_image_exists = Path::new(meta_image_str).exists();
+                if let toml::Value::String(meta_image_str) = meta_image_value {
+                    let meta_image_exists = Path::new(&meta_image_str).exists();
 
                     if meta_image_exists {
                         let mut options = CopyOptions::new();
                         options.overwrite = true;
                         match fs_extra::copy_items(&[meta_image_str], &target_folder, &options) {
                             Ok(_r) => {
-                                meta_image = meta_image_str.to_string();
+                                meta_image = meta_image_str.clone();
                             }
                             Err(e) => {
                                 println!(
@@ -286,8 +261,8 @@ fn main() -> Result<CodeStageExitCode> {
         let title = if global.contains_key("title") {
             let mut title = String::new();
             if let Some(title_value) = global.get("title") {
-                if let Some(title_str) = title_value.as_str() {
-                    title = title_str.to_string();
+                if let toml::Value::String(title_str) = title_value {
+                    title = title_str.clone();
                 }
             }
             title
@@ -298,8 +273,8 @@ fn main() -> Result<CodeStageExitCode> {
         let description = if global.contains_key("description") {
             let mut description = String::new();
             if let Some(description_value) = global.get("description") {
-                if let Some(description_str) = description_value.as_str() {
-                    description = description_str.to_string();
+                if let toml::Value::String(description_str) = description_value {
+                    description = description_str.clone();
                 }
             }
             description
@@ -310,8 +285,8 @@ fn main() -> Result<CodeStageExitCode> {
         let url = if global.contains_key("url") {
             let mut url = String::new();
             if let Some(url_value) = global.get("url") {
-                if let Some(url_str) = url_value.as_str() {
-                    url = url_str.to_string();
+                if let toml::Value::String(url_str) = url_value {
+                    url = url_str.clone();
                 }
             }
             url
@@ -351,34 +326,27 @@ fn main() -> Result<CodeStageExitCode> {
                         if let Err(e) =
                             fs::write(format!("{}/{}", &target_folder, file.as_ref()), &data)
                         {
-                            return Ok(CodeStageExitCode::ERR(format!(
-                                "Unable to write {} {}.",
-                                file.as_ref(),
-                                e.kind()
-                            )));
+                            println!("Unable to write {} {}.", file.as_ref(), e.kind());
+                            return;
                         }
                     }
                     _ => {
-                        return Ok(CodeStageExitCode::ERR(format!(
-                            "Unable to write {} {}.",
-                            file.as_ref(),
-                            e.kind()
-                        )));
+                        println!("Unable to write {} {}.", file.as_ref(), e.kind());
+                        return;
                     }
                 }
             }
         }
 
         if !global.contains_key("title") {
-            return Ok(CodeStageExitCode::ERR(
-                "Config File Error: Mandatory field \"title\" doesn't exist.".to_string(),
-            ));
+            println!("Toml Format Error: Mandatory field \"title\" doesn't exist.");
+            return;
         }
 
         if let Some(utilities) = global.get("utilities") {
-            if let Some(utility_dirs) = utilities.as_array() {
+            if let toml::Value::Array(ref utility_dirs) = utilities {
                 for u in utility_dirs {
-                    if let Some(u_str) = u.as_str() {
+                    if let toml::Value::String(u_str) = u {
                         let mut options = CopyOptions::new();
                         options.overwrite = true;
                         let handle = |_process_info: TransitProcess| {
@@ -405,25 +373,20 @@ fn main() -> Result<CodeStageExitCode> {
 
         let content = match global.get("content") {
             None => {
-                return Ok(CodeStageExitCode::ERR(
-                    "Warning: No content detected.".to_string(),
-                ));
+                println!("Warning: No content detected.");
+                return;
             }
             Some(content) => content,
         };
 
-        if let Some(content) = content.as_array() {
+        if let toml::Value::Array(ref content) = content {
             for c in content {
-                if let Some(chapter) = c.as_object() {
+                if let toml::Value::Table(ref chapter) = c {
                     if verify_chapter(chapter, 0, &target_folder) == false {
-                        return Ok(CodeStageExitCode::ERR(
-                            "Unable to verify chapter data".to_string(),
-                        ));
+                        return;
                     }
                 } else {
-                    return Ok(CodeStageExitCode::ERR(
-                        "Config File Error: A chapter needs to be a table format.".to_string(),
-                    ));
+                    println!("Toml Format Error: A chapter needs to be a table format.");
                 }
             }
         }
@@ -431,10 +394,7 @@ fn main() -> Result<CodeStageExitCode> {
         let file = File::create(format!("{}/manifest.json", target_folder)).unwrap();
         serde_json::to_writer_pretty(file, &value).expect("Unable to write the manifest file.");
     } else {
-        return Ok(CodeStageExitCode::ERR(
-            "The input file doesn't contain configurations.".to_string(),
-        ));
+        println!("The input file doesn't contain configurations.");
+        return;
     }
-
-    Ok(CodeStageExitCode::OK)
 }
