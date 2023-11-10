@@ -20,7 +20,7 @@ To see a demo of a deployed CodeStage site: [Demo](https://shi-yan.github.io/cod
 
 ## Installation
 ```
-cargo install codestage --version 0.1.1-alpha.0
+cargo install codestage --version 0.1.1-alpha.2
 ```
 
 ## Usage
@@ -45,6 +45,8 @@ description = """
 CodeStage is a static site generator to build JS playground demos."""
 # Utility folders are shared by all samples in the project (optional).
 utilities = [ "utility_folder_1",  "utility_folder_2" ]
+# An optional folder to put a readme, the index.html inside the readme folder will be displayed when code is not running
+readme_folder = "readme"
 
 # The following is the table of content, which will be rendered in the menu area.
 # The content field is an array of chapters.
