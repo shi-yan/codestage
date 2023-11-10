@@ -152,7 +152,7 @@ fn fetch_filecontent(
                 return rendered.as_bytes().to_vec();
             }
         }
-        
+
         if ext == "html" || ext == "js" || ext == "css" {
             let mut content = String::from_utf8_lossy(&f.data);
 
@@ -281,6 +281,34 @@ fn main() {
         } else {
             String::new()
         };
+
+        if let Some(readme_folder_value) = global.get("readme_folder") {
+            if let toml::Value::String(readme_folder_str) = readme_folder_value {
+                 let mut options = CopyOptions::new();
+                 options.overwrite = true;
+                 let handle = |_process_info: TransitProcess| {
+                     fs_extra::dir::TransitProcessResult::ContinueOrAbort
+                 };
+                 match fs_extra::copy_items_with_progress(
+                     &[readme_folder_str],
+                     &target_folder,
+                     &options,
+                     handle,
+                 ) {
+                     Ok(_r) => {}
+                     Err(e) => {
+                         println!(
+                             "Warning: Can't copy folder {} to {}. {}",
+                             &readme_folder_str, &target_folder, &e
+                         );
+                     }
+                 }
+            }
+            else {
+                println!("readme_folder needs to be a string.");
+                return;
+            }
+        }
 
         let url = if global.contains_key("url") {
             let mut url = String::new();

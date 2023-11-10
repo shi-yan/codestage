@@ -8,6 +8,7 @@ meta_image = "meta.png"
 description = """
 CodeStage is a static site generator to build JS playground demos."""
 utilities = [ "khronos",  "tdl" ]
+readme_folder = "readme"
 
 [[content]]
 title = "1. Basic Sample"

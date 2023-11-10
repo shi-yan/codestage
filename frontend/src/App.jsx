@@ -52,6 +52,38 @@ function App() {
     window.open(url, "_blank");
   }
 
+  async function displayReadme() {
+    const filePath = "readme/index.html";
+    let file = await fetch(filePath);
+    let html_string = await file.text();
+
+    let newHTMLDocument =
+      document.implementation.createHTMLDocument("preview");
+    newHTMLDocument.documentElement.innerHTML = html_string;
+
+    let existing = newHTMLDocument.head.getElementsByTagName("base");
+    if (existing.length > 0) {
+      for (let e = 0; e < existing.length; ++e) {
+        existing[e].setAttribute(
+          "href",
+          "/" + prefixSubPath(currentFolder.folder)+'/'
+        );
+      }
+    } else {
+      let base = document.createElement("base");
+      base.setAttribute(
+        "href",
+        "/" + prefixSubPath(currentFolder.folder)+'/'
+      );
+      newHTMLDocument.head.appendChild(base);
+    }
+
+    let iframeDoc = outputWindow.contentDocument;
+    iframeDoc.removeChild(iframeDoc.documentElement);
+    outputWindow.srcdoc =
+      newHTMLDocument.documentElement.innerHTML;
+  }
+
   async function onRun() {
     const filePath = currentFolder.folder + "/index.html";
     const model = await fetchFileByPath(filePath);
@@ -234,6 +266,14 @@ function App() {
     }
 
     document.title = currentFolder.title + " - " + f.filename;
+
+    if (content().readme_folder) {
+      console.log("show readme", content().readme_folder)
+      displayReadme();
+    }
+    else {
+      console.log("no readme folder")
+    }
   }
 
   function updateIFrameSize() {
