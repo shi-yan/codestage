@@ -89,6 +89,21 @@ button:focus-visible {
   margin-block-end: 4px;
 }
 
+.menutitle {
+  margin:0;
+  font-size: 16px;
+  margin-top: 3px;
+}
+
+ul {
+  margin-left: 2px;
+  padding: 0;
+}
+
+li {
+  margin-left: 2px;
+}
+
 .clickable:hover {
   background-color: #222045;
   color: #ffffff;

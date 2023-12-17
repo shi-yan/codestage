@@ -16,13 +16,14 @@
   margin-top: 40px;
   color: #ffffff;
   text-align: center;
+  margin-bottom: 8px;
 }
 
 .MenuContent {
   flex-grow: 1;
   overflow-y: scroll;
   overflow-x: hidden;
-  padding: 10px;
+  padding: 16px;
   margin-left: 10px;
 }
 

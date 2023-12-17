@@ -7,7 +7,7 @@ function MenuItem(props) {
     }
     return (
         <li class={`${styles.MenuItem} ${styles.ClickableItem}`} >
-            <h3 classList={{ clickable: props.item.folder }} onClick={onSelect}>
+            <h3 classList={{menutitle:true, clickable: props.item.folder }} onClick={onSelect}>
                 {props.item.title}
             </h3>
             <Show when={props.item.sub_chapters && props.item.sub_chapters.length > 0}>

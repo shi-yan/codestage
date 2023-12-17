@@ -12,7 +12,7 @@ import * as monaco from "monaco-editor";
 function App() {
 
   function prefixSubPath(path) {
-    return "$$_codestage_prefix_$$" + (path?'/'+path:'');
+    return "$$_codestage_prefix_$$" + (path ? '/' + path : '');
   }
 
   function isMobile() {
@@ -66,14 +66,14 @@ function App() {
       for (let e = 0; e < existing.length; ++e) {
         existing[e].setAttribute(
           "href",
-          "/" + prefixSubPath(currentFolder.folder)+'/'
+          "/" + prefixSubPath(currentFolder.folder) + '/'
         );
       }
     } else {
       let base = document.createElement("base");
       base.setAttribute(
         "href",
-        "/" + prefixSubPath(currentFolder.folder)+'/'
+        "/" + prefixSubPath(currentFolder.folder) + '/'
       );
       newHTMLDocument.head.appendChild(base);
     }
@@ -141,14 +141,14 @@ function App() {
       for (let e = 0; e < existing.length; ++e) {
         existing[e].setAttribute(
           "href",
-          "/" + prefixSubPath(currentFolder.folder)+'/'
+          "/" + prefixSubPath(currentFolder.folder) + '/'
         );
       }
     } else {
       let base = document.createElement("base");
       base.setAttribute(
         "href",
-        "/" + prefixSubPath(currentFolder.folder)+'/'
+        "/" + prefixSubPath(currentFolder.folder) + '/'
       );
       newHTMLDocument.head.appendChild(base);
     }
@@ -159,17 +159,22 @@ function App() {
       newHTMLDocument.documentElement.innerHTML;
   }
 
-  function getFirstFolderDetails() {
+  function getFirstFolderDetails(defaultSample) {
     function helper(node) {
       if (node.folder) {
-        return node;
-      } else {
-        if (node.sub_chapters && node.sub_chapters.length > 0) {
-          for (let n of node.sub_chapters) {
-            const r = helper(n);
-            if (r !== null) {
-              return r;
-            }
+        if (defaultSample !== null && node.folder === defaultSample) {
+          return node;
+        }
+        else if (defaultSample === null) {
+          return node;
+        }
+      }
+
+      if (node.sub_chapters && node.sub_chapters.length > 0) {
+        for (let n of node.sub_chapters) {
+          const r = helper(n);
+          if (r !== null) {
+            return r;
           }
         }
       }
@@ -302,7 +307,7 @@ function App() {
 
     currentFolder =
       (folder && getDetailsByFolder(folder)) ||
-      getFirstFolderDetails();
+      getFirstFolderDetails(content().default_sample ? content().readme_folder : null);
 
     if (currentFolder !== null) {
       setFiles([...currentFolder.files]);
@@ -452,9 +457,9 @@ function App() {
             }
           </For>
           <div style="flex-grow: 1"></div>
-          <Show when={content.repo}>
+          <Show when={content().repo}>
             <button
-              onclick={e => openRepo(content.repo)}
+              onclick={e => openRepo(content().repo)}
               class={styles.TabButton}
             >
               <FaBrandsSquareGit style="vertical-align: middle" />
