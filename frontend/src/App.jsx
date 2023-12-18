@@ -307,7 +307,7 @@ function App() {
 
     currentFolder =
       (folder && getDetailsByFolder(folder)) ||
-      getFirstFolderDetails(content().default_sample ? content().readme_folder : null);
+      getFirstFolderDetails(content().default_sample ? content().default_sample : null);
 
     if (currentFolder !== null) {
       setFiles([...currentFolder.files]);
@@ -457,6 +457,10 @@ function App() {
             }
           </For>
           <div style="flex-grow: 1"></div>
+          <button onClick={onRun} class={styles.TabButton} >
+            <FaSolidPlay style="vertical-align: middle" />
+            <span class={styles.TabButtonText}>RUN</span>
+          </button >
           <Show when={content().repo}>
             <button
               onclick={e => openRepo(content().repo)}
@@ -466,10 +470,6 @@ function App() {
               <span class={styles.TabButtonText}>REPO</span>
             </button >
           </Show>
-          <button onClick={onRun} class={styles.TabButton} >
-            <FaSolidPlay style="vertical-align: middle" />
-            <span class={styles.TabButtonText}>RUN</span>
-          </button >
         </div >
         <div class={styles.Main} ref={main}>
           <div class={styles.Editor} id="container" ref={container}></div>
