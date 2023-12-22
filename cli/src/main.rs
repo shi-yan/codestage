@@ -119,6 +119,17 @@ fn verify_chapter(
     return true;
 }
 
+fn generate_google_analytics_id(id:&str) -> String {
+    return format!("<!-- Google tag (gtag.js) -->\n\
+    <script async src=\"https://www.googletagmanager.com/gtag/js?id={}\"></script>\n\
+    <script>\n\
+      window.dataLayer = window.dataLayer || [];\n\
+      function gtag() {{ dataLayer.push(arguments); }}\n\
+      gtag('js', new Date());\n\
+      gtag('config', '{}');\n\
+    </script>",id,id);
+}
+
 fn fetch_filecontent(
     path: &PathBuf,
     f: &EmbeddedFile,
@@ -128,6 +139,7 @@ fn fetch_filecontent(
     description: &str,
     meta_image: &str,
     prefix_str: &str,
+    google_analytics_id: &str,
 ) -> Vec<u8> {
     if let Some(ext) = path.extension() {
         if let Some(filename) = path.file_name() {
@@ -139,6 +151,7 @@ fn fetch_filecontent(
                 rendered = rendered.replace("{{_codestage_meta_image_}}", meta_image);
                 rendered = rendered.replace("{{_codestage_url_}}", url);
                 rendered = rendered.replace("{{_codestage_version_}}", version);
+                rendered = rendered.replace("{{_codestage_google_analytics_}}", generate_google_analytics_id(google_analytics_id).as_str());
 
                 if prefix_str.len() == 0 {
                     if let Some(_) = content.find("/$$_codestage_prefix_$$") {
@@ -310,6 +323,18 @@ fn main() {
             }
         }
 
+        let google_analytics_id = if global.contains_key("google_analytics_id") {
+            let mut google_analytics_id = String::new();
+            if let Some(google_analytics_id_value) = global.get("google_analytics_id") {
+                if let toml::Value::String(google_analytics_id_str) = google_analytics_id_value {
+                    google_analytics_id = google_analytics_id_str.clone();
+                }
+            }
+            google_analytics_id
+        } else {
+            String::new()
+        };
+
         let url = if global.contains_key("url") {
             let mut url = String::new();
             if let Some(url_value) = global.get("url") {
@@ -342,6 +367,7 @@ fn main() {
                 &description,
                 &meta_image,
                 &prefix_str,
+                &google_analytics_id,
             );
 
             if let Err(e) = fs::write(&path, &data) {
