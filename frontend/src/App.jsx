@@ -410,10 +410,12 @@ function App() {
 
   return (
     <Show when={!isMobile()}
-      fallback={<>
-        <img src={logo} style="width:100vw" />
-        <p>Only desktop browsers are supported.</p>
-      </>}>
+      fallback={
+        <div class="mobile">
+          <img src={logo} style="width:200px; margin auto" />
+          <p>Only desktop browsers are supported.</p>
+        </div>
+      }>
       <div style="width: 100%; display: flex; flex-direction: column">
         <div ref={menu} class={styles.Menu} classList={{ slide: isMenuOpen() }}>
           <h2 class={styles.MenuTitle}>{content().title}</h2>

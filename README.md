@@ -4,7 +4,7 @@ https://user-images.githubusercontent.com/326807/201398785-5eaf402e-ee41-46c4-bb
 
 ![logo](https://raw.githubusercontent.com/shi-yan/codestage/master/logo.png)
 
-CodeStage is a static site generator to create javascript playgrounds. I implemented this to generate code samples for my WebGPU tutorial project. CodeStage was inspired by the following sites:
+CodeStage is a static site generator to create javascript playgrounds. I implemented this to generate code samples for [my WebGPU tutorial](https://shi-yan.github.io/WebGPUUnleashed/) project. CodeStage was inspired by the following sites:
 
 [Monaco](https://microsoft.github.io/monaco-editor/playground.html) | [WebGPU samples](https://austin-eng.com/webgpu-samples) | [Bauble](https://bauble.studio) | [Goplay](https://goplay.space)
 
