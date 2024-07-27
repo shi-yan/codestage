@@ -31,6 +31,7 @@ function App() {
   let outputWindow = null;
   let editor = null;
   let loadedFiles = new Map();
+  let highlightRanges = [];
 
   const [content, setContent] = createSignal({});
   let currentFolder = {};
@@ -304,7 +305,28 @@ function App() {
     } else {
       folder = null;
     }
+    
+    const params = new URL(document.location.toString()).searchParams;
+    if (params) {
+      const highlight = params.get("highlight");
+      if (highlight) {
+        const sections = highlight.split(',');
+        for(const s of sections){
+          const startAndEndLine = s.split(':');
+          const startLine = parseInt(startAndEndLine[0]);
+          const endLine = parseInt(startAndEndLine[1]);
 
+          const range = {
+            startLineNumber: startLine + 1,
+            startColumn: 1,
+            endLineNumber: endLine + 1,
+            endColumn: 9
+          }
+
+          highlightRanges.push(range);
+        }
+      }
+    }
     currentFolder =
       (folder && getDetailsByFolder(folder)) ||
       getFirstFolderDetails(content().default_sample ? content().default_sample : null);
@@ -403,6 +425,18 @@ function App() {
       snippetSuggestions: "none",
       hover: { enabled: false },
     });
+
+    if (highlightRanges.length > 0) {
+      editor.createDecorationsCollection(highlightRanges.map((range) => {
+        return {
+            range: range,
+            options: {
+              isWholeLine: true,
+              inlineClassName: "highlight-line"
+            }
+          };
+      }));
+    }
 
     onLoadFile(null, files()[0]);
 

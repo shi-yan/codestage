@@ -34,80 +34,69 @@ fn verify_chapter(
     indent: usize,
     target: &str,
 ) -> bool {
-    if !content.contains_key("title") {
-        println!("Toml Format Error: A Chapter must have a title.");
-        return false;
-    } else {
-        println!(
-            "{:indent$}{}",
-            "",
-            content.get("title").unwrap(),
-            indent = indent
-        );
-    }
+    println!(
+        "{:indent$}{}",
+        "",
+        content
+            .get("title")
+            .expect("Toml Format Error: A Chapter must have a title."),
+        indent = indent
+    );
 
-    if content.contains_key("folder") {
-        if let Some(folder) = content.get("folder") {
-            if let toml::Value::String(folder_str) = folder {
-                let mut options = CopyOptions::new();
-                options.overwrite = true;
-                let handle = |_process_info: TransitProcess| {
-                    //println!("{}", process_info.total_bytes);
-                    fs_extra::dir::TransitProcessResult::ContinueOrAbort
-                };
-                match fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle) {
-                    Ok(_r) => {}
-                    Err(e) => {
-                        println!(
-                            "Warning: Can't copy folder {} to {}. {}",
-                            &folder_str, &target, &e
-                        );
-                    }
-                }
-            } else {
-                println!("Toml Format Error: A folder must be a string.");
-                return false;
-            }
-        }
-    }
-
-    if content.contains_key("files") {
-        let mut has_seen_index = false;
-        if let toml::Value::Array(files) = content.get("files").unwrap() {
-            for f in files {
-                if let toml::Value::Table(ref file) = f {
-                    if !file.contains_key("filename") {
-                        println!("Toml Format Error: A file must contain a filename.");
-                        return false;
-                    } else {
-                        if let toml::Value::String(filename) = file.get("filename").unwrap() {
-                            if filename == "index.html" {
-                                has_seen_index = true;
-                            }
-                        } else {
-                            println!("Toml Format Error: Filename must be a string.");
-                            return false;
-                        }
-                    }
+    if let Some(folder) = content.get("folder") {
+        if let toml::Value::String(folder_str) = folder {
+            let mut options = CopyOptions::new();
+            options.overwrite = true;
+            let handle = |_process_info: TransitProcess| {
+                //println!("{}", process_info.total_bytes);
+                fs_extra::dir::TransitProcessResult::ContinueOrAbort
+            };
+            match fs_extra::copy_items_with_progress(&[folder_str], &target, &options, handle) {
+                Ok(_r) => {}
+                Err(e) => {
+                    println!(
+                        "Warning: Can't copy folder {} to {}. {}",
+                        &folder_str, &target, &e
+                    );
                 }
             }
-        }
-
-        if has_seen_index == false {
-            println!("Toml Format Error: There must be a index.html in each folder.");
+        } else {
+            println!("Toml Format Error: A folder must be a string.");
             return false;
         }
     }
 
-    if content.contains_key("sub_chapters") {
-        if let toml::Value::Array(content) = content.get("sub_chapters").unwrap() {
+    if let Some(files) = content.get("files") {
+        if let toml::Value::Array(files) = files {
+            let mut has_seen_index = false;
+            for f in files {
+                let filename = f
+                    .as_table()
+                    .expect("file must be of a table type")
+                    .get("filename")
+                    .expect("Toml Format Error: A file must contain a filename.")
+                    .as_str()
+                    .expect("Toml Format Error: Filename must be a string.");
+
+                if filename == "index.html" {
+                    has_seen_index = true;
+                }
+            }
+            if has_seen_index == false {
+                println!("Toml Format Error: There must be a index.html in each folder.");
+                return false;
+            }
+        }
+    }
+    if let Some(sub_chapters) = content.get("sub_chapters") {
+        if let toml::Value::Array(content) = sub_chapters {
             for c in content {
-                if let toml::Value::Table(c) = c {
-                    if !verify_chapter(c, indent + 2, target) {
-                        return false;
-                    }
-                } else {
-                    println!("Toml Format Error: A sub chapter must be a map type.");
+                let c = c
+                    .as_table()
+                    .expect("Toml Format Error: A sub chapter must be a map type.");
+
+                if !verify_chapter(c, indent + 2, target) {
+                    return false;
                 }
             }
             return true;
@@ -115,19 +104,21 @@ fn verify_chapter(
             println!("Toml Format Error: Sub chapter field must have an array type.");
         }
     }
-
     return true;
 }
 
-fn generate_google_analytics_id(id:&str) -> String {
-    return format!("<!-- Google tag (gtag.js) -->\n\
+fn generate_google_analytics_id(id: &str) -> String {
+    return format!(
+        "<!-- Google tag (gtag.js) -->\n\
     <script async src=\"https://www.googletagmanager.com/gtag/js?id={}\"></script>\n\
     <script>\n\
       window.dataLayer = window.dataLayer || [];\n\
       function gtag() {{ dataLayer.push(arguments); }}\n\
       gtag('js', new Date());\n\
       gtag('config', '{}');\n\
-    </script>",id,id);
+    </script>",
+        id, id
+    );
 }
 
 fn fetch_filecontent(
@@ -143,7 +134,7 @@ fn fetch_filecontent(
 ) -> Vec<u8> {
     if let Some(ext) = path.extension() {
         if let Some(filename) = path.file_name() {
-            if filename == "index.html" {
+            if filename == "code.html" {
                 let content = String::from_utf8_lossy(&f.data);
 
                 let mut rendered = content.replace("{{_codestage_title_}}", title);
@@ -151,7 +142,10 @@ fn fetch_filecontent(
                 rendered = rendered.replace("{{_codestage_meta_image_}}", meta_image);
                 rendered = rendered.replace("{{_codestage_url_}}", url);
                 rendered = rendered.replace("{{_codestage_version_}}", version);
-                rendered = rendered.replace("{{_codestage_google_analytics_}}", generate_google_analytics_id(google_analytics_id).as_str());
+                rendered = rendered.replace(
+                    "{{_codestage_google_analytics_}}",
+                    generate_google_analytics_id(google_analytics_id).as_str(),
+                );
 
                 if prefix_str.len() == 0 {
                     if let Some(_) = content.find("/$$_codestage_prefix_$$") {
@@ -188,12 +182,12 @@ fn main() {
     let args = Args::parse();
     //https://patorjk.com/software/taag/#p=display&f=Ogre&t=Code%20Stage
     println!(
-        "     ___          _        __ _                   
-    / __\\___   __| | ___  / _\\ |_ __ _  __ _  ___ 
-   / /  / _ \\ / _` |/ _ \\ \\ \\| __/ _` |/ _` |/ _ \\
-  / /__| (_) | (_| |  __/ _\\ \\ || (_| | (_| |  __/
-  \\____/\\___/ \\__,_|\\___| \\__/\\__\\__,_|\\__, |\\___|
-                                       |___/      "
+        "   ____       _         ____       _      _    
+        /___ \\_   _(_)_ __   /___ \\_   _(_) ___| | __
+       //  / / | | | | '_ \\ //  / / | | | |/ __| |/ /
+      / \\_/ /| |_| | | |_) / \\_/ /| |_| | | (__|   < 
+      \\___,_\\ \\__,_|_| .__/\\___,_\\ \\__,_|_|\\___|_|\\_\\
+                     |_|                             "
     );
     const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -271,7 +265,7 @@ fn main() {
             String::new()
         };
 
-        let title = if global.contains_key("title") {
+        let title =  if global.contains_key("title") {
             let mut title = String::new();
             if let Some(title_value) = global.get("title") {
                 if let toml::Value::String(title_str) = title_value {
@@ -297,27 +291,26 @@ fn main() {
 
         if let Some(readme_folder_value) = global.get("readme_folder") {
             if let toml::Value::String(readme_folder_str) = readme_folder_value {
-                 let mut options = CopyOptions::new();
-                 options.overwrite = true;
-                 let handle = |_process_info: TransitProcess| {
-                     fs_extra::dir::TransitProcessResult::ContinueOrAbort
-                 };
-                 match fs_extra::copy_items_with_progress(
-                     &[readme_folder_str],
-                     &target_folder,
-                     &options,
-                     handle,
-                 ) {
-                     Ok(_r) => {}
-                     Err(e) => {
-                         println!(
-                             "Warning: Can't copy folder {} to {}. {}",
-                             &readme_folder_str, &target_folder, &e
-                         );
-                     }
-                 }
-            }
-            else {
+                let mut options = CopyOptions::new();
+                options.overwrite = true;
+                let handle = |_process_info: TransitProcess| {
+                    fs_extra::dir::TransitProcessResult::ContinueOrAbort
+                };
+                match fs_extra::copy_items_with_progress(
+                    &[readme_folder_str],
+                    &target_folder,
+                    &options,
+                    handle,
+                ) {
+                    Ok(_r) => {}
+                    Err(e) => {
+                        println!(
+                            "Warning: Can't copy folder {} to {}. {}",
+                            &readme_folder_str, &target_folder, &e
+                        );
+                    }
+                }
+            } else {
                 println!("readme_folder needs to be a string.");
                 return;
             }

@@ -2,6 +2,7 @@
 node_modules
 frontend/dist
 cli/target
+cli/dist
 example_project/dist
 Cargo.lock
 package-lock.json

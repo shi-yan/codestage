@@ -13,6 +13,9 @@ export default defineConfig({
         chunkFileNames: `assets/[name].js`,
         assetFileNames: `assets/[name].[ext]`
       },
+      input: {
+        app: 'code.html', // default
+      },
       external: [
         'node_modules/monaco-editor/min'
       ],

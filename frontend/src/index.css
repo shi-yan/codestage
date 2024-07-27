@@ -134,3 +134,7 @@ li {
   font-size: 24px;
   text-align: center;
 }
+
+.highlight-line {
+  background: #ffec99;
+}
