@@ -280,6 +280,29 @@ function App() {
     else {
       console.log("no readme folder")
     }
+
+
+    if (highlightRanges.length > 0) {
+      console.log("decorations", highlightRanges.map((range) => {
+        return {
+            range: range,
+            options: {
+              isWholeLine: true,
+              inlineClassName: "highlight-line"
+            }
+          };
+      }));
+      
+      editor.createDecorationsCollection(highlightRanges.map((range) => {
+        return {
+            range: range,
+            options: {
+              isWholeLine: true,
+              linesDecorationsClassName: "highlight-lines"
+            }
+          };
+      }));
+    }
   }
 
   function updateIFrameSize() {
@@ -316,17 +339,22 @@ function App() {
           const startLine = parseInt(startAndEndLine[0]);
           const endLine = parseInt(startAndEndLine[1]);
 
-          const range = {
+          /*const range = {
             startLineNumber: startLine + 1,
             startColumn: 1,
             endLineNumber: endLine + 1,
             endColumn: 9
-          }
+          }*/
+
+          const range = new monaco.Range(startLine + 1, 1, endLine + 1, 9);
 
           highlightRanges.push(range);
         }
       }
     }
+
+    console.log('highlightRanges', highlightRanges);
+
     currentFolder =
       (folder && getDetailsByFolder(folder)) ||
       getFirstFolderDetails(content().default_sample ? content().default_sample : null);
@@ -425,18 +453,6 @@ function App() {
       snippetSuggestions: "none",
       hover: { enabled: false },
     });
-
-    if (highlightRanges.length > 0) {
-      editor.createDecorationsCollection(highlightRanges.map((range) => {
-        return {
-            range: range,
-            options: {
-              isWholeLine: true,
-              inlineClassName: "highlight-line"
-            }
-          };
-      }));
-    }
 
     onLoadFile(null, files()[0]);
 
