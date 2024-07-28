@@ -302,6 +302,8 @@ function App() {
             }
           };
       }));
+
+      editor.revealLineInCenter(highlightRanges[0].startLineNumber);
     }
   }
 

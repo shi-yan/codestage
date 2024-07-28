@@ -3,13 +3,16 @@ use rust_embed::EmbeddedFile;
 use rust_embed::RustEmbed;
 use std::fs;
 use std::fs::File;
-use std::io::ErrorKind;
-use std::path::Path;
-use std::path::PathBuf;
+use std::io::BufWriter;
+use std::io::Write;
+use std::io::{BufRead, BufReader, ErrorKind, LineWriter};
+use std::path::{Path, PathBuf};
 use toml::Value;
 extern crate fs_extra;
 use fs_extra::dir::CopyOptions;
 use fs_extra::TransitProcess;
+use regex::Regex;
+
 #[derive(RustEmbed)]
 #[folder = "dist/"]
 struct Asset;
@@ -60,32 +63,73 @@ fn verify_chapter(
                     );
                 }
             }
+
+            if let Some(files) = content.get("files") {
+                if let toml::Value::Array(files) = files {
+                    let mut has_seen_index = false;
+                    for f in files {
+                        let filename = f
+                            .as_table()
+                            .expect("file must be of a table type")
+                            .get("filename")
+                            .expect("Toml Format Error: A file must contain a filename.")
+                            .as_str()
+                            .expect("Toml Format Error: Filename must be a string.");
+
+                        if filename == "index.html" {
+                            has_seen_index = true;
+                        }
+
+                        if let Some(extension) = Path::new(&filename).extension() {
+                            if extension == "html"
+                                || extension == "js"
+                                || extension == "py"
+                                || extension == "cpp"
+                            {
+                                let mut lines: Vec<String> = Vec::new();
+                                {
+                                    println!("{}/{}/{}", &target, &folder_str, &filename);
+                                    let file = std::fs::File::open(
+                                        format!("{}/{}/{}", &target, &folder_str, &filename).as_str(),
+                                    )
+                                    .unwrap();
+                                    let reader = BufReader::new(&file);
+
+                                    for line in reader.lines() {
+                                        let line_mut = line.unwrap();
+
+                                        let trimed_line = line_mut.trim();
+
+                                        if trimed_line.starts_with("//cs_start:")
+                                            || trimed_line.starts_with("#cs_start:")
+                                            || trimed_line.starts_with("//cs_end:")
+                                            || trimed_line.starts_with("#cs_end:")
+                                        {
+                                        } else {
+                                            lines.push(line_mut.clone());
+                                        }
+                                    }
+                                }
+                                let file = std::fs::OpenOptions::new()
+                                    .write(true)
+                                    .truncate(true)
+                                    .open(format!("{}/{}/{}", &target, &folder_str, &filename).as_str()).unwrap();
+                                let mut writer = BufWriter::new(&file);
+                                for l in lines {
+                                    writer.write(format!("{}\n", l).as_bytes()).unwrap();
+                                }
+                            }
+                        }
+                    }
+                    if has_seen_index == false {
+                        println!("Toml Format Error: There must be a index.html in each folder.");
+                        return false;
+                    }
+                }
+            }
         } else {
             println!("Toml Format Error: A folder must be a string.");
             return false;
-        }
-    }
-
-    if let Some(files) = content.get("files") {
-        if let toml::Value::Array(files) = files {
-            let mut has_seen_index = false;
-            for f in files {
-                let filename = f
-                    .as_table()
-                    .expect("file must be of a table type")
-                    .get("filename")
-                    .expect("Toml Format Error: A file must contain a filename.")
-                    .as_str()
-                    .expect("Toml Format Error: Filename must be a string.");
-
-                if filename == "index.html" {
-                    has_seen_index = true;
-                }
-            }
-            if has_seen_index == false {
-                println!("Toml Format Error: There must be a index.html in each folder.");
-                return false;
-            }
         }
     }
     if let Some(sub_chapters) = content.get("sub_chapters") {
@@ -265,7 +309,7 @@ fn main() {
             String::new()
         };
 
-        let title =  if global.contains_key("title") {
+        let title = if global.contains_key("title") {
             let mut title = String::new();
             if let Some(title_value) = global.get("title") {
                 if let toml::Value::String(title_str) = title_value {
